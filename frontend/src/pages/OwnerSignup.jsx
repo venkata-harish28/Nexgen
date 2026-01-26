@@ -1,31 +1,60 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ownerAPI } from '../services/api';
-import { ShieldCheck, LogIn, ArrowLeft, Lock, User } from 'lucide-react';
+import { ShieldCheck, UserPlus, ArrowLeft, Mail, Lock, User, AlertCircle } from 'lucide-react';
 
-const OwnerLogin = () => {
+const OwnerSignup = () => {
   const [formData, setFormData] = useState({
+    name: '',
     username: '',
-    password: ''
+    email: '',
+    password: '',
+    confirmPassword: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      setLoading(false);
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await ownerAPI.login(formData);
-      if (response.data.success) {
-        localStorage.setItem('ownerToken', response.data.token);
-        localStorage.setItem('ownerData', JSON.stringify(response.data.owner));
-        navigate('/owner-dashboard');
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const response = await fetch(`${API_URL}/owner/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          username: formData.username,
+          email: formData.email,
+          password: formData.password
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSuccess(true);
+        setTimeout(() => navigate('/owner-login'), 2000);
+      } else {
+        setError(data.message || 'Registration failed');
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid credentials. Please try again.');
+      setError('Server error. Please try again later.');
     } finally {
       setLoading(false);
     }
@@ -42,7 +71,7 @@ const OwnerLogin = () => {
       position: 'relative',
       overflow: 'hidden'
     }}>
-      {/* Animated Background Elements */}
+      {/* Animated Background */}
       <div style={{
         position: 'absolute',
         top: '-20%',
@@ -68,14 +97,14 @@ const OwnerLogin = () => {
         background: 'white',
         borderRadius: '24px',
         padding: '3rem',
-        maxWidth: '500px',
+        maxWidth: '550px',
         width: '100%',
         boxShadow: '0 25px 80px rgba(0,0,0,0.2)',
         position: 'relative',
         zIndex: 1
       }}>
         <button 
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/owner-login')}
           style={{ 
             background: 'transparent',
             border: 'none',
@@ -93,7 +122,7 @@ const OwnerLogin = () => {
           onMouseOut={(e) => e.currentTarget.style.color = '#6c757d'}
         >
           <ArrowLeft size={18} />
-          Back to Home
+          Back to Login
         </button>
 
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
@@ -111,8 +140,8 @@ const OwnerLogin = () => {
           }}>
             <ShieldCheck size={36} />
           </div>
-          <h2 style={{ marginBottom: '0.5rem', fontSize: '2rem', fontWeight: 700 }}>Owner Dashboard</h2>
-          <p style={{ color: '#6c757d', fontSize: '0.95rem' }}>Sign in to manage your hostels</p>
+          <h2 style={{ marginBottom: '0.5rem', fontSize: '2rem', fontWeight: 700 }}>Create Owner Account</h2>
+          <p style={{ color: '#6c757d', fontSize: '0.95rem' }}>Register to manage your hostel properties</p>
         </div>
 
         {error && (
@@ -122,14 +151,64 @@ const OwnerLogin = () => {
             borderRadius: '12px',
             padding: '1rem',
             marginBottom: '1.5rem',
-            color: '#c33',
-            fontSize: '0.9rem'
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+            color: '#c33'
           }}>
-            {error}
+            <AlertCircle size={20} />
+            <span>{error}</span>
           </div>
         )}
 
-        <form onSubmit={handleLogin}>
+        {success && (
+          <div style={{ 
+            background: '#d4edda',
+            border: '1px solid #c3e6cb',
+            borderRadius: '12px',
+            padding: '1rem',
+            marginBottom: '1.5rem',
+            color: '#155724',
+            textAlign: 'center'
+          }}>
+            ✓ Registration successful! Redirecting to login...
+          </div>
+        )}
+
+        <form onSubmit={handleSignup}>
+          <div style={{ marginBottom: '1.5rem' }}>
+            <label style={{ 
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              marginBottom: '0.5rem',
+              fontWeight: 600,
+              fontSize: '0.9rem',
+              color: '#1a1a1a'
+            }}>
+              <User size={16} />
+              Full Name
+            </label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              placeholder="Enter your full name"
+              required
+              style={{
+                width: '100%',
+                padding: '0.875rem 1rem',
+                borderRadius: '12px',
+                border: '2px solid #e1e8ed',
+                fontSize: '0.95rem',
+                transition: 'all 0.3s',
+                outline: 'none'
+              }}
+              onFocus={(e) => e.target.style.borderColor = '#667eea'}
+              onBlur={(e) => e.target.style.borderColor = '#e1e8ed'}
+            />
+          </div>
+
           <div style={{ marginBottom: '1.5rem' }}>
             <label style={{ 
               display: 'flex',
@@ -147,7 +226,73 @@ const OwnerLogin = () => {
               type="text"
               value={formData.username}
               onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-              placeholder="Enter your username"
+              placeholder="Choose a username"
+              required
+              style={{
+                width: '100%',
+                padding: '0.875rem 1rem',
+                borderRadius: '12px',
+                border: '2px solid #e1e8ed',
+                fontSize: '0.95rem',
+                transition: 'all 0.3s',
+                outline: 'none'
+              }}
+              onFocus={(e) => e.target.style.borderColor = '#667eea'}
+              onBlur={(e) => e.target.style.borderColor = '#e1e8ed'}
+            />
+          </div>
+
+          <div style={{ marginBottom: '1.5rem' }}>
+            <label style={{ 
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              marginBottom: '0.5rem',
+              fontWeight: 600,
+              fontSize: '0.9rem',
+              color: '#1a1a1a'
+            }}>
+              <Mail size={16} />
+              Email Address
+            </label>
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              placeholder="Enter your email"
+              required
+              style={{
+                width: '100%',
+                padding: '0.875rem 1rem',
+                borderRadius: '12px',
+                border: '2px solid #e1e8ed',
+                fontSize: '0.95rem',
+                transition: 'all 0.3s',
+                outline: 'none'
+              }}
+              onFocus={(e) => e.target.style.borderColor = '#667eea'}
+              onBlur={(e) => e.target.style.borderColor = '#e1e8ed'}
+            />
+          </div>
+
+          <div style={{ marginBottom: '1.5rem' }}>
+            <label style={{ 
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              marginBottom: '0.5rem',
+              fontWeight: 600,
+              fontSize: '0.9rem',
+              color: '#1a1a1a'
+            }}>
+              <Lock size={16} />
+              Password
+            </label>
+            <input
+              type="password"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              placeholder="Create a password (min. 6 characters)"
               required
               style={{
                 width: '100%',
@@ -174,13 +319,13 @@ const OwnerLogin = () => {
               color: '#1a1a1a'
             }}>
               <Lock size={16} />
-              Password
+              Confirm Password
             </label>
             <input
               type="password"
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              placeholder="Enter your password"
+              value={formData.confirmPassword}
+              onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+              placeholder="Confirm your password"
               required
               style={{
                 width: '100%',
@@ -228,8 +373,8 @@ const OwnerLogin = () => {
               e.currentTarget.style.boxShadow = '0 4px 16px rgba(102, 126, 234, 0.4)';
             }}
           >
-            <LogIn size={20} />
-            {loading ? 'Signing in...' : 'Sign In'}
+            <UserPlus size={20} />
+            {loading ? 'Creating Account...' : 'Create Account'}
           </button>
         </form>
 
@@ -241,9 +386,9 @@ const OwnerLogin = () => {
           borderRadius: '12px'
         }}>
           <p style={{ fontSize: '0.9rem', color: '#6c757d', margin: 0 }}>
-            Don't have an account?{' '}
+            Already have an account?{' '}
             <button
-              onClick={() => navigate('/owner-signup')}
+              onClick={() => navigate('/owner-login')}
               style={{
                 background: 'transparent',
                 border: 'none',
@@ -253,7 +398,7 @@ const OwnerLogin = () => {
                 textDecoration: 'underline'
               }}
             >
-              Sign Up
+              Sign In
             </button>
           </p>
         </div>
@@ -262,4 +407,4 @@ const OwnerLogin = () => {
   );
 };
 
-export default OwnerLogin;
+export default OwnerSignup;

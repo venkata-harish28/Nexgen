@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import TenantLogin from './pages/TenantLogin';
 import TenantDashboard from './pages/TenantDashboard';
 import OwnerLogin from './pages/OwnerLogin';
+import OwnerSignup from './pages/OwnerSignup';
 import OwnerDashboard from './pages/OwnerDashboard';
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
         <Route path="/tenant-login" element={<TenantLogin />} />
         <Route path="/tenant-dashboard" element={<TenantDashboard />} />
         <Route path="/owner-login" element={<OwnerLogin />} />
+        <Route path="/owner-signup" element={<OwnerSignup />} />
         <Route path="/owner-dashboard" element={<OwnerDashboard />} />
       </Routes>
     </Router>

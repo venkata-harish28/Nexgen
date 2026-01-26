@@ -15,18 +15,56 @@ const router = express.Router();
 
 // Generate JWT token
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: '30d'
-  });
+  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
 };
+
+// Owner registration/signup
+router.post('/register', async (req, res) => {
+  try {
+    const { name, username, email, password } = req.body;
+
+    // Check if owner already exists
+    const existingOwner = await Owner.findOne({ $or: [{ username }, { email }] });
+    
+    if (existingOwner) {
+      return res.status(400).json({
+        message: existingOwner.username === username 
+          ? 'Username already taken' 
+          : 'Email already registered'
+      });
+    }
+
+    // Create new owner
+    const owner = new Owner({
+      name,
+      username,
+      email,
+      password // Will be hashed by the pre-save hook
+    });
+
+    await owner.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Owner account created successfully',
+      owner: {
+        id: owner._id,
+        name: owner.name,
+        email: owner.email,
+        username: owner.username
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
 
 // Owner login
 router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
-    
     const owner = await Owner.findOne({ username });
-    
+
     if (owner && (await owner.matchPassword(password))) {
       res.json({
         success: true,
@@ -50,7 +88,6 @@ router.post('/login', async (req, res) => {
 router.post('/announcements', authenticateOwner, async (req, res) => {
   try {
     const { title, content, location, priority } = req.body;
-    
     const announcement = new Announcement({
       title,
       content,
@@ -58,7 +95,7 @@ router.post('/announcements', authenticateOwner, async (req, res) => {
       priority,
       createdBy: req.owner.name
     });
-    
+
     await announcement.save();
     res.status(201).json({ message: 'Announcement created successfully', announcement });
   } catch (error) {
@@ -71,7 +108,6 @@ router.get('/announcements', authenticateOwner, async (req, res) => {
   try {
     const { location } = req.query;
     const filter = location ? { location } : {};
-    
     const announcements = await Announcement.find(filter).sort({ createdAt: -1 });
     res.json(announcements);
   } catch (error) {
@@ -87,11 +123,11 @@ router.put('/announcements/:id', authenticateOwner, async (req, res) => {
       req.body,
       { new: true }
     );
-    
+
     if (!announcement) {
       return res.status(404).json({ message: 'Announcement not found' });
     }
-    
+
     res.json({ message: 'Announcement updated successfully', announcement });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -115,7 +151,7 @@ router.get('/complaints', authenticateOwner, async (req, res) => {
     const filter = {};
     if (location) filter.location = location;
     if (status) filter.status = status;
-    
+
     const complaints = await Complaint.find(filter).sort({ createdAt: -1 });
     res.json(complaints);
   } catch (error) {
@@ -127,17 +163,16 @@ router.get('/complaints', authenticateOwner, async (req, res) => {
 router.put('/complaints/:id', authenticateOwner, async (req, res) => {
   try {
     const { status, adminResponse } = req.body;
-    
     const complaint = await Complaint.findByIdAndUpdate(
       req.params.id,
       { status, adminResponse },
       { new: true }
     );
-    
+
     if (!complaint) {
       return res.status(404).json({ message: 'Complaint not found' });
     }
-    
+
     res.json({ message: 'Complaint updated successfully', complaint });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -148,10 +183,10 @@ router.put('/complaints/:id', authenticateOwner, async (req, res) => {
 router.post('/tenants', authenticateOwner, async (req, res) => {
   try {
     const { name, email, phone, roomNumber, location, rentAmount } = req.body;
-    
+
     // Generate unique passkey
     const passkey = `HST-${uuidv4().substring(0, 8).toUpperCase()}`;
-    
+
     const tenant = new Tenant({
       name,
       email,
@@ -161,20 +196,16 @@ router.post('/tenants', authenticateOwner, async (req, res) => {
       location,
       rentAmount
     });
-    
+
     await tenant.save();
-    
+
     // Update room occupancy
     await Room.findOneAndUpdate(
       { roomNumber, location },
       { $inc: { currentOccupancy: 1 } }
     );
-    
-    res.status(201).json({ 
-      message: 'Tenant created successfully', 
-      tenant,
-      passkey 
-    });
+
+    res.status(201).json({ message: 'Tenant created successfully', tenant, passkey });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
@@ -185,7 +216,6 @@ router.get('/tenants', authenticateOwner, async (req, res) => {
   try {
     const { location } = req.query;
     const filter = location ? { location } : {};
-    
     const tenants = await Tenant.find(filter).sort({ joinDate: -1 });
     res.json(tenants);
   } catch (error) {
@@ -201,11 +231,11 @@ router.put('/tenants/:id', authenticateOwner, async (req, res) => {
       req.body,
       { new: true }
     );
-    
+
     if (!tenant) {
       return res.status(404).json({ message: 'Tenant not found' });
     }
-    
+
     res.json({ message: 'Tenant updated successfully', tenant });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -220,7 +250,7 @@ router.get('/payments', authenticateOwner, async (req, res) => {
     if (location) filter.location = location;
     if (month) filter.paymentMonth = month;
     if (year) filter.paymentYear = parseInt(year);
-    
+
     const payments = await Payment.find(filter).sort({ paymentDate: -1 });
     res.json(payments);
   } catch (error) {
@@ -235,7 +265,7 @@ router.get('/leave-requests', authenticateOwner, async (req, res) => {
     const filter = {};
     if (location) filter.location = location;
     if (status) filter.status = status;
-    
+
     const leaveRequests = await LeaveRequest.find(filter).sort({ createdAt: -1 });
     res.json(leaveRequests);
   } catch (error) {
@@ -247,28 +277,27 @@ router.get('/leave-requests', authenticateOwner, async (req, res) => {
 router.put('/leave-requests/:id', authenticateOwner, async (req, res) => {
   try {
     const { status, adminNotes, refundAmount } = req.body;
-    
     const leaveRequest = await LeaveRequest.findByIdAndUpdate(
       req.params.id,
       { status, adminNotes, refundAmount },
       { new: true }
     );
-    
+
     if (!leaveRequest) {
       return res.status(404).json({ message: 'Leave request not found' });
     }
-    
+
     // If approved, deactivate tenant
     if (status === 'approved') {
       await Tenant.findByIdAndUpdate(leaveRequest.tenantId, { isActive: false });
-      
+
       // Update room occupancy
       await Room.findOneAndUpdate(
         { roomNumber: leaveRequest.roomNumber, location: leaveRequest.location },
         { $inc: { currentOccupancy: -1 } }
       );
     }
-    
+
     res.json({ message: 'Leave request updated successfully', leaveRequest });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -279,9 +308,9 @@ router.put('/leave-requests/:id', authenticateOwner, async (req, res) => {
 router.post('/menu', authenticateOwner, async (req, res) => {
   try {
     const { location, day, breakfast, lunch, snacks, dinner } = req.body;
-    
+
     let menu = await Menu.findOne({ location, day });
-    
+
     if (menu) {
       menu.breakfast = breakfast;
       menu.lunch = lunch;
@@ -292,7 +321,7 @@ router.post('/menu', authenticateOwner, async (req, res) => {
       menu = new Menu({ location, day, breakfast, lunch, snacks, dinner });
       await menu.save();
     }
-    
+
     res.json({ message: 'Menu saved successfully', menu });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -304,7 +333,6 @@ router.get('/menu', authenticateOwner, async (req, res) => {
   try {
     const { location } = req.query;
     const filter = location ? { location } : {};
-    
     const menu = await Menu.find(filter).sort({ day: 1 });
     res.json(menu);
   } catch (error) {
@@ -328,7 +356,6 @@ router.get('/rooms', authenticateOwner, async (req, res) => {
   try {
     const { location } = req.query;
     const filter = location ? { location } : {};
-    
     const rooms = await Room.find(filter).sort({ roomNumber: 1 });
     res.json(rooms);
   } catch (error) {
@@ -344,11 +371,11 @@ router.put('/rooms/:id', authenticateOwner, async (req, res) => {
       req.body,
       { new: true }
     );
-    
+
     if (!room) {
       return res.status(404).json({ message: 'Room not found' });
     }
-    
+
     // Update vacancy status based on occupancy
     if (room.currentOccupancy >= room.capacity) {
       room.isVacant = false;
@@ -356,7 +383,7 @@ router.put('/rooms/:id', authenticateOwner, async (req, res) => {
       room.isVacant = true;
     }
     await room.save();
-    
+
     res.json({ message: 'Room updated successfully', room });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -368,33 +395,28 @@ router.get('/dashboard/stats', authenticateOwner, async (req, res) => {
   try {
     const { location } = req.query;
     const filter = location ? { location } : {};
-    
+
     const totalTenants = await Tenant.countDocuments({ ...filter, isActive: true });
     const totalRooms = await Room.countDocuments(filter);
     const vacantRooms = await Room.countDocuments({ ...filter, isVacant: true });
     const pendingComplaints = await Complaint.countDocuments({ ...filter, status: 'pending' });
     const pendingLeaveRequests = await LeaveRequest.countDocuments({ ...filter, status: 'pending' });
-    
+
     const currentMonth = new Date().toLocaleString('default', { month: 'long' });
     const currentYear = new Date().getFullYear();
-    
+
     const monthlyRevenue = await Payment.aggregate([
-      { 
-        $match: { 
+      {
+        $match: {
           ...filter,
           paymentMonth: currentMonth,
           paymentYear: currentYear,
           status: 'completed'
-        } 
+        }
       },
-      { 
-        $group: { 
-          _id: null, 
-          total: { $sum: '$amount' } 
-        } 
-      }
+      { $group: { _id: null, total: { $sum: '$amount' } } }
     ]);
-    
+
     res.json({
       totalTenants,
       totalRooms,
