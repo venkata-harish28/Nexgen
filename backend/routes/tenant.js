@@ -1,6 +1,6 @@
 import express from 'express';
 import { authenticateTenant } from '../middleware/auth.js';
-import Tenant from '../models/Tenant.js';  // MUST HAVE THIS
+import Tenant from '../models/Tenant.js';
 import Announcement from '../models/Announcement.js';
 import Complaint from '../models/Complaint.js';
 import Room from '../models/Room.js';
@@ -34,7 +34,7 @@ router.post('/login', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Login error:', error);  // ADD THIS FOR DEBUGGING
+    console.error('Login error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
@@ -88,12 +88,13 @@ router.get('/complaints', authenticateTenant, async (req, res) => {
   }
 });
 
-// Get vacant rooms at tenant's location
+// Get vacant rooms at tenant's location - UPDATED TO SHOW ROOMS WITH AVAILABLE BEDS
 router.get('/rooms/vacant', authenticateTenant, async (req, res) => {
   try {
+    // Find rooms that have at least one available bed
     const rooms = await Room.find({
       location: req.tenant.location,
-      isVacant: true
+      $expr: { $lt: ['$currentOccupancy', '$capacity'] } // currentOccupancy < capacity
     }).sort({ roomNumber: 1 });
     
     res.json(rooms);

@@ -199,11 +199,18 @@ router.post('/tenants', authenticateOwner, async (req, res) => {
 
     await tenant.save();
 
-    // Update room occupancy
-    await Room.findOneAndUpdate(
+    // Update room occupancy AND vacancy status
+    const room = await Room.findOneAndUpdate(
       { roomNumber, location },
-      { $inc: { currentOccupancy: 1 } }
+      { $inc: { currentOccupancy: 1 } },
+      { new: true }
     );
+
+    // Update vacancy status
+    if (room) {
+      room.isVacant = room.currentOccupancy < room.capacity;
+      await room.save();
+    }
 
     res.status(201).json({ message: 'Tenant created successfully', tenant, passkey });
   } catch (error) {
@@ -291,11 +298,18 @@ router.put('/leave-requests/:id', authenticateOwner, async (req, res) => {
     if (status === 'approved') {
       await Tenant.findByIdAndUpdate(leaveRequest.tenantId, { isActive: false });
 
-      // Update room occupancy
-      await Room.findOneAndUpdate(
+      // Update room occupancy AND vacancy status
+      const room = await Room.findOneAndUpdate(
         { roomNumber: leaveRequest.roomNumber, location: leaveRequest.location },
-        { $inc: { currentOccupancy: -1 } }
+        { $inc: { currentOccupancy: -1 } },
+        { new: true }
       );
+
+      // Update vacancy status
+      if (room) {
+        room.isVacant = room.currentOccupancy < room.capacity;
+        await room.save();
+      }
     }
 
     res.json({ message: 'Leave request updated successfully', leaveRequest });
@@ -377,14 +391,33 @@ router.put('/rooms/:id', authenticateOwner, async (req, res) => {
     }
 
     // Update vacancy status based on occupancy
-    if (room.currentOccupancy >= room.capacity) {
-      room.isVacant = false;
-    } else {
-      room.isVacant = true;
-    }
+    room.isVacant = room.currentOccupancy < room.capacity;
     await room.save();
 
     res.json({ message: 'Room updated successfully', room });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Delete room
+router.delete('/rooms/:id', authenticateOwner, async (req, res) => {
+  try {
+    const room = await Room.findById(req.params.id);
+    
+    if (!room) {
+      return res.status(404).json({ message: 'Room not found' });
+    }
+
+    // Check if room has occupants
+    if (room.currentOccupancy > 0) {
+      return res.status(400).json({ 
+        message: 'Cannot delete room with active occupants. Please move tenants first.' 
+      });
+    }
+
+    await Room.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Room deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
