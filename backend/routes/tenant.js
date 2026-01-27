@@ -1,5 +1,6 @@
 import express from 'express';
 import { authenticateTenant } from '../middleware/auth.js';
+import Tenant from '../models/Tenant.js';  // MUST HAVE THIS
 import Announcement from '../models/Announcement.js';
 import Complaint from '../models/Complaint.js';
 import Room from '../models/Room.js';
@@ -33,6 +34,7 @@ router.post('/login', async (req, res) => {
       }
     });
   } catch (error) {
+    console.error('Login error:', error);  // ADD THIS FOR DEBUGGING
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
