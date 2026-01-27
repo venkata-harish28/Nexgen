@@ -106,7 +106,7 @@ const OwnerDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-gradient-to-br from-gray-900 to-gray-700 text-white px-8 py-6">
+      <div className="bg-white text-white px-8 py-6">
         <div className="container mx-auto flex flex-wrap justify-between items-center gap-4">
           <div>
             <h2 className="text-2xl font-bold mb-1">Owner Dashboard</h2>

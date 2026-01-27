@@ -15,64 +15,138 @@ const ComplaintsTab = ({ data, token, onUpdate }) => {
     }
   };
 
-  const getStatusColor = (status) => {
-    switch(status) {
-      case 'resolved': return 'bg-green-100 text-green-800';
-      case 'in-progress': return 'bg-blue-100 text-blue-800';
-      case 'closed': return 'bg-gray-100 text-gray-800';
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
+  const getPriorityBadge = (priority) => {
+    switch(priority?.toLowerCase()) {
+      case 'high': 
+        return <span className="px-3 py-1 rounded text-xs font-bold bg-red-500 text-white">High</span>;
+      case 'medium': 
+        return <span className="px-3 py-1 rounded text-xs font-bold bg-orange-500 text-white">Medium</span>;
+      case 'low': 
+        return <span className="px-3 py-1 rounded text-xs font-bold bg-green-500 text-white">Low</span>;
+      default: 
+        return <span className="px-3 py-1 rounded text-xs font-bold bg-gray-500 text-white">Medium</span>;
     }
   };
 
-  return (
-    <div>
-      <h3 className="text-2xl font-bold mb-6 text-gray-900">Complaints Management</h3>
+  const getStatusBadge = (status) => {
+    switch(status?.toLowerCase()) {
+      case 'pending':
+        return <span className="px-3 py-1 rounded text-xs font-semibold bg-yellow-100 text-yellow-700">Pending</span>;
+      case 'in-progress':
+        return <span className="px-3 py-1 rounded text-xs font-semibold bg-blue-100 text-blue-700">In Progress</span>;
+      case 'resolved':
+        return <span className="px-3 py-1 rounded text-xs font-semibold bg-green-100 text-green-700">Resolved</span>;
+      case 'closed':
+        return <span className="px-3 py-1 rounded text-xs font-semibold bg-gray-100 text-gray-700">Closed</span>;
+      default:
+        return <span className="px-3 py-1 rounded text-xs font-semibold bg-gray-100 text-gray-700">{status}</span>;
+    }
+  };
+
+  // Filter out resolved and closed complaints, then sort by priority and time
+  const sortedComplaints = [...data]
+    .filter(complaint => {
+      const status = complaint.status?.toLowerCase();
+      return status !== 'resolved' && status !== 'closed';
+    })
+    .sort((a, b) => {
+      const priorityOrder = { high: 0, medium: 1, low: 2 };
+      const priorityA = priorityOrder[a.priority?.toLowerCase()] ?? 3;
+      const priorityB = priorityOrder[b.priority?.toLowerCase()] ?? 3;
       
-      {data.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm p-16 text-center">
-          <AlertCircle size={48} className="mx-auto mb-4 opacity-30 text-gray-400" />
-          <h3 className="text-xl font-semibold mb-2 text-gray-900">No Complaints</h3>
-          <p className="text-gray-600">No complaints have been submitted</p>
-        </div>
-      ) : (
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+      if (priorityA !== priorityB) {
+        return priorityA - priorityB;
+      }
+      
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    });
+
+  return (
+    <div className="min-h-screen bg-gray-50 p-6">
+      {/* Header Section */}
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Complaint Status</h1>
+        <p className="text-gray-600">
+          View and manage all tenant complaints
+        </p>
+      </div>
+
+      {/* Table Container */}
+      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+        {sortedComplaints.length === 0 ? (
+          <div className="p-16 text-center">
+            <AlertCircle size={48} className="mx-auto mb-4 opacity-30 text-gray-400" />
+            <h3 className="text-xl font-semibold mb-2 text-gray-900">No Complaints</h3>
+            <p className="text-gray-600">No complaints have been submitted</p>
+          </div>
+        ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Tenant</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Room</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Location</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Category</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Subject</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Date</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Action</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Tenant Name
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Room
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Subject
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Category
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Priority
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Date Submitted
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Action
+                  </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
-                {data.map(complaint => (
-                  <tr key={complaint._id} className="hover:bg-gray-50 transition-colors duration-150">
-                    <td className="px-6 py-4 text-sm text-gray-900">{complaint.tenantName}</td>
-                    <td className="px-6 py-4 text-sm text-gray-900">{complaint.roomNumber}</td>
-                    <td className="px-6 py-4 text-sm text-gray-900">{complaint.location}</td>
-                    <td className="px-6 py-4 text-sm text-gray-900 capitalize">{complaint.category}</td>
-                    <td className="px-6 py-4 text-sm text-gray-900">{complaint.subject}</td>
-                    <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(complaint.status)}`}>
-                        {complaint.status}
-                      </span>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {sortedComplaints.map(complaint => (
+                  <tr 
+                    key={complaint._id}
+                    className="hover:bg-gray-50 transition-colors duration-150"
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {complaint.tenantName}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      {new Date(complaint.createdAt).toLocaleDateString()}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      {complaint.roomNumber}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 text-sm text-gray-700 max-w-xs truncate">
+                      {complaint.subject || 'No subject'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 capitalize">
+                      {complaint.category}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      {getPriorityBadge(complaint.priority)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      {new Date(complaint.createdAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit'
+                      })}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      {getStatusBadge(complaint.status)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
                       <button
                         onClick={() => setSelectedComplaint(complaint)}
-                        className="px-4 py-2 bg-gray-600 text-white text-sm rounded-lg hover:bg-gray-700 transition-colors duration-200"
+                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors duration-200 font-medium"
                       >
-                        View
+                        View Details
                       </button>
                     </td>
                   </tr>
@@ -80,8 +154,8 @@ const ComplaintsTab = ({ data, token, onUpdate }) => {
               </tbody>
             </table>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {selectedComplaint && (
         <ComplaintModal 
@@ -137,6 +211,10 @@ const ComplaintModal = ({ complaint, onClose, onUpdate }) => {
               <span className="ml-2 text-gray-700 capitalize">{complaint.category}</span>
             </div>
             <div>
+              <span className="font-semibold text-gray-900">Priority:</span>
+              <span className="ml-2 text-gray-700 capitalize font-semibold">{complaint.priority}</span>
+            </div>
+            <div>
               <span className="font-semibold text-gray-900">Subject:</span>
               <span className="ml-2 text-gray-700">{complaint.subject}</span>
             </div>
@@ -157,7 +235,7 @@ const ComplaintModal = ({ complaint, onClose, onUpdate }) => {
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="pending">Pending</option>
                 <option value="in-progress">In Progress</option>
@@ -173,7 +251,7 @@ const ComplaintModal = ({ complaint, onClose, onUpdate }) => {
                 onChange={(e) => setAdminResponse(e.target.value)}
                 placeholder="Enter your response to the tenant"
                 rows="4"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
             
