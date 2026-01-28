@@ -121,6 +121,11 @@ export const ownerAPI = {
       headers: { Authorization: `Bearer ${token}` },
     }),
 
+  deleteTenant: (token, id) =>
+    axios.delete(`${API_URL}/owner/tenants/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    }),
+
   /* Payments */
   getPayments: (token, location, month, year) =>
     axios.get(`${API_URL}/owner/payments`, {

@@ -249,6 +249,37 @@ router.put('/tenants/:id', authenticateOwner, async (req, res) => {
   }
 });
 
+// Delete tenant
+router.delete('/tenants/:id', authenticateOwner, async (req, res) => {
+  try {
+    const tenant = await Tenant.findById(req.params.id);
+
+    if (!tenant) {
+      return res.status(404).json({ message: 'Tenant not found' });
+    }
+
+    // Update room occupancy when deleting tenant
+    const room = await Room.findOneAndUpdate(
+      { roomNumber: tenant.roomNumber, location: tenant.location },
+      { $inc: { currentOccupancy: -1 } },
+      { new: true }
+    );
+
+    // Update vacancy status
+    if (room) {
+      room.isVacant = room.currentOccupancy < room.capacity;
+      await room.save();
+    }
+
+    // Delete the tenant
+    await Tenant.findByIdAndDelete(req.params.id);
+
+    res.json({ message: 'Tenant deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 // Get all payments
 router.get('/payments', authenticateOwner, async (req, res) => {
   try {

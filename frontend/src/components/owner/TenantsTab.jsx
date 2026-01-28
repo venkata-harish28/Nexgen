@@ -24,6 +24,14 @@ const TenantsTab = ({ data, token, selectedLocation, onUpdate, rooms }) => {
         room.currentOccupancy < room.capacity
       );
       setAvailableRooms(filtered);
+      
+      // Reset room selection if location changes
+      if (formData.roomNumber) {
+        const roomStillAvailable = filtered.find(r => r.roomNumber === formData.roomNumber);
+        if (!roomStillAvailable) {
+          setFormData(prev => ({ ...prev, roomNumber: '', rentAmount: '' }));
+        }
+      }
     }
   }, [formData.location, showForm, rooms]);
 
@@ -64,6 +72,18 @@ const TenantsTab = ({ data, token, selectedLocation, onUpdate, rooms }) => {
     }
   };
 
+  const handleDelete = async (tenantId) => {
+    if (window.confirm('Are you sure you want to delete this tenant? This action cannot be undone.')) {
+      try {
+        await ownerAPI.deleteTenant(token, tenantId);
+        onUpdate();
+      } catch (error) {
+        console.error('Error deleting tenant:', error);
+        alert(error.response?.data?.message || 'Failed to delete tenant. Please try again.');
+      }
+    }
+  };
+
   const closeModal = () => {
     setShowForm(false);
     setNewPasskey('');
@@ -77,6 +97,16 @@ const TenantsTab = ({ data, token, selectedLocation, onUpdate, rooms }) => {
       rentAmount: ''
     });
   };
+
+  // Filter and sort tenants by location and room
+  const filteredTenants = data.sort((a, b) => {
+    // First sort by location
+    if (a.location !== b.location) {
+      return a.location.localeCompare(b.location);
+    }
+    // Then by room number
+    return a.roomNumber.localeCompare(b.roomNumber);
+  });
 
   return (
     <div>
@@ -94,7 +124,7 @@ const TenantsTab = ({ data, token, selectedLocation, onUpdate, rooms }) => {
         </button>
       </div>
 
-      {data.length === 0 ? (
+      {filteredTenants.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm p-16 text-center">
           <Users size={48} className="mx-auto mb-4 opacity-30 text-gray-400" />
           <h3 className="text-xl font-semibold mb-2 text-gray-900">No Tenants</h3>
@@ -114,10 +144,11 @@ const TenantsTab = ({ data, token, selectedLocation, onUpdate, rooms }) => {
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Rent</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Join Date</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {data.map(tenant => (
+                {filteredTenants.map(tenant => (
                   <tr key={tenant._id} className="hover:bg-gray-50 transition-colors duration-150">
                     <td className="px-6 py-4 text-sm font-medium text-gray-900">{tenant.name}</td>
                     <td className="px-6 py-4 text-sm text-gray-700">{tenant.email}</td>
@@ -138,6 +169,15 @@ const TenantsTab = ({ data, token, selectedLocation, onUpdate, rooms }) => {
                       }`}>
                         {tenant.isActive ? 'Active' : 'Inactive'}
                       </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() => handleDelete(tenant._id)}
+                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                        title="Delete Tenant"
+                      >
+                        <Trash2 size={16} />
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -288,7 +328,7 @@ const TenantsTab = ({ data, token, selectedLocation, onUpdate, rooms }) => {
                     </select>
                     {availableRooms.length === 0 && (
                       <p className="text-sm text-red-600 mt-1">
-                        No rooms available at this location. Please add rooms first.
+                        No rooms available at this location. Please add rooms first or select a different location.
                       </p>
                     )}
                   </div>
