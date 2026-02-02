@@ -50,7 +50,7 @@ const TenantMenu = ({ data }) => {
       <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-md">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md">
               <Utensils size={24} className="text-white" />
             </div>
             <div>
@@ -60,7 +60,7 @@ const TenantMenu = ({ data }) => {
           </div>
           
           {/* Current Day Indicator */}
-          <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-5 py-2.5 rounded-lg shadow-md">
+          <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-5 py-2.5 rounded-lg shadow-md">
             <p className="text-xs font-semibold uppercase tracking-wide">Today</p>
             <p className="text-lg font-bold">{currentDay}</p>
           </div>
@@ -86,21 +86,21 @@ const TenantMenu = ({ data }) => {
                   key={menu._id} 
                   className={`relative rounded-xl p-5 shadow-sm hover:shadow-lg transition-all duration-200 border-2 cursor-pointer ${
                     isToday 
-                      ? 'bg-gradient-to-br from-green-50 to-green-100 border-green-400 ring-2 ring-green-400 ring-offset-2' 
-                      : 'bg-white border-gray-200 hover:border-green-300'
+                      ? 'bg-gradient-to-br from-blue-50 to-blue-100 border-blue-400 ring-2 ring-blue-400 ring-offset-2' 
+                      : 'bg-white border-gray-200 hover:border-blue-300'
                   }`}
                   onClick={() => setSelectedDay(menu)}
                 >
                   {/* Today Badge */}
                   {isToday && (
-                    <div className="absolute -top-2 -right-2 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-md">
+                    <div className="absolute -top-2 -right-2 bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-bold shadow-md">
                       TODAY
                     </div>
                   )}
 
                   {/* Day Header */}
                   <div className="mb-4 pb-3 border-b-2 border-gray-200">
-                    <h4 className={`text-xl font-bold ${isToday ? 'text-green-700' : 'text-gray-900'}`}>
+                    <h4 className={`text-xl font-bold ${isToday ? 'text-blue700' : 'text-gray-900'}`}>
                       {menu.day}
                     </h4>
                   </div>
@@ -145,7 +145,7 @@ const TenantMenu = ({ data }) => {
                   <button 
                     className={`w-full mt-2 px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 ${
                       isToday
-                        ? 'bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800 shadow-md'
+                        ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-md'
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >

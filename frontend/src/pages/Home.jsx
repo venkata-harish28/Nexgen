@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Instagram } from "lucide-react";
+import Navbar from './NavBar';
 
 import { Building2, Users, ShieldCheck, Bell, CreditCard, Sparkles, ArrowRight, Search, MapPin, Star, Wifi, Coffee, Utensils, Dumbbell, Book, Heart, Users2, Home as HomeIcon, Globe, ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -48,153 +49,8 @@ const Home = () => {
   return (
     <div style={{ minHeight: '100vh', background: 'white' }}>
       {/* Transparent Navigation Bar with Logo */}
-      <nav style={{
-        background: 'transparent',
-        backdropFilter: 'blur(10px)',
-        padding: '1rem 2rem',
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 100,
-        borderBottom: 'none'
-      }}>
-        <div className="container" style={{
-          maxWidth: '1400px',
-          margin: '0 auto',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between'
-        }}>
-
-          {/* Logo */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <img
-              src="/logo.png"
-              alt="NextGen Logo"
-              style={{
-                height: '50px',
-                width: 'auto',
-                objectFit: 'contain'
-              }}
-            />
-          </div>
-
-          {/* Navigation Links */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '2.5rem',
-            flex: 1,
-            justifyContent: 'center'
-          }}>
-
-            <button
-              onClick={() => scrollToSection("about")}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: '#ffffff',
-                fontWeight: 500,
-                fontSize: '1rem',
-                cursor: 'pointer',
-                transition: 'color 0.3s',
-                textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
-              }}
-              onMouseOver={(e) => e.currentTarget.style.color = '#22c55e'}
-              onMouseOut={(e) => e.currentTarget.style.color = '#ffffff'}
-            >
-              About
-            </button>
-
-            <button
-              onClick={() => scrollToSection("rooms")}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: '#ffffff',
-                fontWeight: 500,
-                fontSize: '1rem',
-                cursor: 'pointer',
-                transition: 'color 0.3s',
-                textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
-              }}
-              onMouseOver={(e) => e.currentTarget.style.color = '#22c55e'}
-              onMouseOut={(e) => e.currentTarget.style.color = '#ffffff'}
-            >
-              Rooms
-            </button>
-
-            <button
-              onClick={() => scrollToSection("locations")}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: '#ffffff',
-                fontWeight: 500,
-                fontSize: '1rem',
-                cursor: 'pointer',
-                transition: 'color 0.3s',
-                textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
-              }}
-              onMouseOver={(e) => e.currentTarget.style.color = '#22c55e'}
-              onMouseOut={(e) => e.currentTarget.style.color = '#ffffff'}
-            >
-              Locations
-            </button>
-
-            <button
-              onClick={() => scrollToSection("contact")}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: '#ffffff',
-                fontWeight: 500,
-                fontSize: '1rem',
-                cursor: 'pointer',
-                transition: 'color 0.3s',
-                textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
-              }}
-              onMouseOver={(e) => e.currentTarget.style.color = '#22c55e'}
-              onMouseOut={(e) => e.currentTarget.style.color = '#ffffff'}
-            >
-              Contact
-            </button>
-
-          </div>
-
-          {/* Login/Sign Up Button */}
-          <button
-            onClick={() => navigate('/tenant-login')}
-            style={{
-              background: '#22c55e',
-              color: '#ffffff',
-              border: '2px solid #22c55e',           // ✅ GREEN border
-              borderRadius: '50px',
-              padding: '0.75rem 2rem',
-              fontSize: '1rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-              transition: 'all 0.3s',
-              whiteSpace: 'nowrap',
-              boxShadow: '0 8px 20px rgba(34,197,94,0.35)' // ✅ nice glow
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.background = '#16a34a';  // darker green
-              e.currentTarget.style.borderColor = '#16a34a';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.background = '#22c55e';  // back to green
-              e.currentTarget.style.borderColor = '#22c55e';
-            }}
-          >
-            Login
-          </button>
-
-
-        </div>
-      </nav>
-
+      
+    <Navbar/>
 
       {/* Hero Section - Full Background Image */}
       <div style={{
@@ -255,7 +111,7 @@ const Home = () => {
 
             {/* Book Now Button */}
             <button
-              onClick={() => navigate('/tenant/rooms')}
+              onClick={() => navigate('/pages/Booking')}
               style={{
                 background: '#22c55e',
                 color: 'white',
@@ -2684,6 +2540,189 @@ const Home = () => {
             <Star size={20} />
             <span style={{ fontSize: '0.9rem', fontWeight: 500 }}>4.8/5 Rating</span>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{/* About Section */}
+<div id="about" style={{ padding: '6rem 2rem', background: 'white' }}>
+  <div className="container" style={{ maxWidth: '1200px', margin: '0 auto' }}>
+    <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+      <h2 style={{
+        fontSize: '3rem',
+        marginBottom: '1rem',
+        fontWeight: 800,
+        color: '#2d3748',
+        letterSpacing: '-1px'
+      }}>
+        About <span style={{ color: '#22c55e' }}>NextGen Hostels</span>
+      </h2>
+      <div style={{
+        width: '80px',
+        height: '4px',
+        background: 'linear-gradient(90deg, #22c55e, #16a34a)',
+        margin: '0 auto 2rem',
+        borderRadius: '2px'
+      }} />
+    </div>
+
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: '1fr 1fr',
+      gap: '4rem',
+      alignItems: 'center'
+    }}>
+      <div>
+        <h3 style={{
+          fontSize: '2rem',
+          fontWeight: 700,
+          marginBottom: '1.5rem',
+          color: '#2d3748'
+        }}>
+          Your Home Away From Home
+        </h3>
+        <p style={{
+          fontSize: '1.1rem',
+          lineHeight: 1.8,
+          color: '#6c757d',
+          marginBottom: '1.5rem'
+        }}>
+          NextGen Hostels is redefining co-living in Hyderabad. We believe that your accommodation should be more than just four walls and a roof – it should be a community, a comfort zone, and a launching pad for your dreams.
+        </p>
+        <p style={{
+          fontSize: '1.1rem',
+          lineHeight: 1.8,
+          color: '#6c757d',
+          marginBottom: '1.5rem'
+        }}>
+          Founded with a vision to provide premium, affordable, and safe living spaces for students and working professionals, we've created an ecosystem where you can focus on what truly matters – your growth and success.
+        </p>
+
+        <div style={{ marginTop: '2rem' }}>
+          <h4 style={{
+            fontSize: '1.3rem',
+            fontWeight: 700,
+            marginBottom: '1rem',
+            color: '#2d3748'
+          }}>
+            Why Choose NextGen?
+          </h4>
+          <ul style={{
+            listStyle: 'none',
+            padding: 0,
+            margin: 0
+          }}>
+            {[
+              'Premium amenities at affordable prices',
+              'Safe and secure environment with 24/7 security',
+              'Strategic locations near IT hubs and educational institutions',
+              'Community-focused living with regular events',
+              'Professional housekeeping and maintenance',
+              'Flexible sharing options to suit your budget'
+            ].map((item, index) => (
+              <li key={index} style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1rem',
+                marginBottom: '1rem',
+                fontSize: '1rem',
+                color: '#6c757d'
+              }}>
+                <div style={{
+                  width: '24px',
+                  height: '24px',
+                  borderRadius: '50%',
+                  background: '#22c55e',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}>
+                  <span style={{ color: 'white', fontSize: '0.75rem' }}>✓</span>
+                </div>
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '1.5rem'
+      }}>
+        <div style={{
+          background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+          padding: '2.5rem 2rem',
+          borderRadius: '20px',
+          color: 'white',
+          textAlign: 'center',
+          boxShadow: '0 10px 30px rgba(34, 197, 94, 0.3)'
+        }}>
+          <div style={{
+            fontSize: '3.5rem',
+            fontWeight: 800,
+            marginBottom: '0.5rem'
+          }}>
+            500+
+          </div>
+          <div style={{ fontSize: '1.1rem', opacity: 0.95 }}>Happy Residents</div>
+        </div>
+
+        <div style={{
+          background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+          padding: '2.5rem 2rem',
+          borderRadius: '20px',
+          color: 'white',
+          textAlign: 'center',
+          boxShadow: '0 10px 30px rgba(59, 130, 246, 0.3)'
+        }}>
+          <div style={{
+            fontSize: '3.5rem',
+            fontWeight: 800,
+            marginBottom: '0.5rem'
+          }}>
+            10+
+          </div>
+          <div style={{ fontSize: '1.1rem', opacity: 0.95 }}>Premium Locations</div>
+        </div>
+
+        <div style={{
+          background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+          padding: '2.5rem 2rem',
+          borderRadius: '20px',
+          color: 'white',
+          textAlign: 'center',
+          boxShadow: '0 10px 30px rgba(245, 158, 11, 0.3)'
+        }}>
+          <div style={{
+            fontSize: '3.5rem',
+            fontWeight: 800,
+            marginBottom: '0.5rem'
+          }}>
+            4.8
+          </div>
+          <div style={{ fontSize: '1.1rem', opacity: 0.95 }}>Average Rating</div>
+        </div>
+
+        <div style={{
+          background: 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)',
+          padding: '2.5rem 2rem',
+          borderRadius: '20px',
+          color: 'white',
+          textAlign: 'center',
+          boxShadow: '0 10px 30px rgba(236, 72, 153, 0.3)'
+        }}>
+          <div style={{
+            fontSize: '3.5rem',
+            fontWeight: 800,
+            marginBottom: '0.5rem'
+          }}>
+            24/7
+          </div>
+          <div style={{ fontSize: '1.1rem', opacity: 0.95 }}>Support Available</div>
         </div>
       </div>
     </div>
