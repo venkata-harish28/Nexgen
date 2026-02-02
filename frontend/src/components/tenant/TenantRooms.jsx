@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Home, X, Users, IndianRupee, Layers } from 'lucide-react';
+import { Home, X, Users, IndianRupee, Layers, Building2 } from 'lucide-react';
 import { BedSingle } from "lucide-react";
 
 const TenantRooms = ({ data }) => {
@@ -8,9 +8,14 @@ const TenantRooms = ({ data }) => {
 
   return (
     <div>
-      <div className="mb-6">
-        <h3 className="text-2xl font-bold text-gray-900">Available Rooms</h3>
-        <p className="text-gray-600 mt-1">Browse available rooms at your location</p>
+      <div className="mb-6 flex items-center gap-3">
+        <div className="p-3 bg-blue-50 rounded-xl border border-blue-100">
+          <Building2 size={28} className="text-blue-600" strokeWidth={2} />
+        </div>
+        <div>
+          <h3 className="text-2xl font-bold text-gray-900">Available Rooms</h3>
+          <p className="text-gray-600 mt-1">Browse available rooms at your location</p>
+        </div>
       </div>
       
       {data.length === 0 ? (

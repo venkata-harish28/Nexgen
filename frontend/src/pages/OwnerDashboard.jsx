@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ownerAPI } from '../services/api';
-import { LogOut, BarChart3, Bell, AlertCircle, Users, Home, CreditCard, DoorOpen, Utensils } from 'lucide-react';
+import { LogOut, BarChart3, Bell, AlertCircle, Users, Home, CreditCard, DoorOpen, Utensils, User } from 'lucide-react';
 
 // Import tab components
 import DashboardTab from '../components/owner/DashboardTab';
@@ -28,10 +28,24 @@ const OwnerDashboard = () => {
     rooms: []
   });
   const [loading, setLoading] = useState(true);
+  const [iconLoaded, setIconLoaded] = useState(true);
   const navigate = useNavigate();
 
   const token = localStorage.getItem('ownerToken');
   const locations = ['all', 'Location A', 'Location B', 'Location C'];
+  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+  // Update page title and favicon
+  useEffect(() => {
+    document.title = 'Owner Dashboard - Hostel Management';
+    const favicon = document.querySelector("link[rel*='icon']") || document.createElement('link');
+    favicon.type = 'image/png';
+    favicon.rel = 'icon';
+    favicon.href = '/Icon.png';
+    if (!document.querySelector("link[rel*='icon']")) {
+      document.head.appendChild(favicon);
+    }
+  }, []);
 
   useEffect(() => {
     const ownerData = JSON.parse(localStorage.getItem('ownerData'));
@@ -59,13 +73,23 @@ const OwnerDashboard = () => {
       ]);
 
       setStats(statsRes.data);
+      
+      // Sort menu by location first, then by day
+      const sortedMenu = menu.data.sort((a, b) => {
+        const locationComparison = locations.indexOf(a.location) - locations.indexOf(b.location);
+        if (locationComparison !== 0) {
+          return locationComparison;
+        }
+        return days.indexOf(a.day) - days.indexOf(b.day);
+      });
+      
       setData({
         announcements: announcements.data,
         complaints: complaints.data,
         tenants: tenants.data,
         payments: payments.data,
         leaveRequests: leaveRequests.data,
-        menu: menu.data,
+        menu: sortedMenu,
         rooms: rooms.data
       });
     } catch (error) {
@@ -97,8 +121,11 @@ const OwnerDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-xl font-semibold text-gray-700">Loading...</div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
       </div>
     );
   }
@@ -106,62 +133,81 @@ const OwnerDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white text-white px-8 py-6">
-        <div className="container mx-auto flex flex-wrap justify-between items-center gap-4">
-          <div>
-            <h2 className="text-2xl font-bold mb-1">Owner Dashboard</h2>
-            <p className="text-gray-300 text-sm">Welcome back, {owner?.name}</p>
-          </div>
-          <div className="flex gap-4 items-center">
-            <select
-              value={selectedLocation}
-              onChange={(e) => setSelectedLocation(e.target.value)}
-              className="px-4 py-3 rounded-lg border-none bg-white/15 text-white text-sm cursor-pointer focus:ring-2 focus:ring-white/30 focus:outline-none"
-            >
-              {locations.map(location => (
-                <option key={location} value={location} className="text-gray-900">
-                  {location === 'all' ? 'All Locations' : location}
-                </option>
-              ))}
-            </select>
-            <button 
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-3 rounded-lg bg-white/15 hover:bg-white/25 transition-all duration-200"
-            >
-              <LogOut size={18} />
-              <span>Logout</span>
-            </button>
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center gap-3">
+              {/* Icon or Fallback */}
+              {iconLoaded ? (
+                <img 
+                  src="/Icon.png" 
+                  alt="Hostel Icon" 
+                  className="h-10 w-10 object-contain"
+                  onError={() => setIconLoaded(false)}
+                />
+              ) : (
+                <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
+                  <User size={24} className="text-white" strokeWidth={2} />
+                </div>
+              )}
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-1">Welcome, {owner?.name}</h2>
+                <p className="text-gray-600 text-sm">Owner Dashboard</p>
+              </div>
+            </div>
+            <div className="flex gap-3 items-center">
+              <select
+                value={selectedLocation}
+                onChange={(e) => setSelectedLocation(e.target.value)}
+                className="px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 text-sm cursor-pointer focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none transition-colors duration-200"
+              >
+                {locations.map(location => (
+                  <option key={location} value={location}>
+                    {location === 'all' ? 'All Locations' : location}
+                  </option>
+                ))}
+              </select>
+              <button 
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-600 hover:bg-gray-700 text-white transition-colors duration-200"
+              >
+                <LogOut size={18} />
+                <span className="hidden sm:inline">Logout</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Navigation Tabs */}
-      <div className="bg-white border-b border-gray-200 overflow-x-auto">
-        <div className="container mx-auto px-8 flex gap-2">
-          {tabs.map(tab => {
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`
-                  flex items-center gap-2 px-6 py-4 transition-all duration-200 whitespace-nowrap
-                  ${activeTab === tab.id 
-                    ? 'text-gray-900 font-semibold border-b-3 border-gray-900' 
-                    : 'text-gray-500 hover:text-gray-700 border-b-3 border-transparent'
-                  }
-                `}
-              >
-                <Icon size={18} />
-                <span>{tab.label}</span>
-              </button>
-            );
-          })}
+      <div className="bg-white border-b border-gray-200 sticky top-[73px] z-10 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex overflow-x-auto scrollbar-hide">
+            {tabs.map(tab => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`
+                    flex items-center gap-2 px-4 py-4 transition-all duration-200 whitespace-nowrap border-b-2
+                    ${activeTab === tab.id 
+                      ? 'border-gray-900 text-gray-900 font-semibold' 
+                      : 'border-transparent text-gray-600 hover:text-gray-900 hover:border-gray-300'
+                    }
+                  `}
+                >
+                  <Icon size={18} />
+                  <span className="hidden sm:inline">{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="container mx-auto p-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {activeTab === 'dashboard' && <DashboardTab stats={stats} />}
         {activeTab === 'announcements' && (
           <AnnouncementsTab 
@@ -183,10 +229,16 @@ const OwnerDashboard = () => {
             data={data.tenants} 
             token={token} 
             selectedLocation={selectedLocation} 
-            onUpdate={loadData} 
+            onUpdate={loadData}
+            rooms={data.rooms}
           />
         )}
-        {activeTab === 'payments' && <PaymentsTab data={data.payments} />}
+        {activeTab === 'payments' && (
+          <PaymentsTab 
+            data={data.payments} 
+            tenants={data.tenants} 
+          />
+        )}
         {activeTab === 'leave-requests' && (
           <LeaveRequestsTab 
             data={data.leaveRequests} 

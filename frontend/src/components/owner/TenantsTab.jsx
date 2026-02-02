@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Users, X, Edit2, Trash2, Key } from 'lucide-react';
+import { Plus, Users, X, Trash2, Key, MapPin, Mail, Phone, Home, Calendar, IndianRupee, AlertCircle } from 'lucide-react';
 import { ownerAPI } from '../../services/api';
 
 const TenantsTab = ({ data, token, selectedLocation, onUpdate, rooms }) => {
@@ -16,7 +16,6 @@ const TenantsTab = ({ data, token, selectedLocation, onUpdate, rooms }) => {
   const [availableRooms, setAvailableRooms] = useState([]);
   const [error, setError] = useState('');
 
-  // Get available rooms for the selected location
   useEffect(() => {
     if (showForm && rooms) {
       const filtered = rooms.filter(room => 
@@ -25,7 +24,6 @@ const TenantsTab = ({ data, token, selectedLocation, onUpdate, rooms }) => {
       );
       setAvailableRooms(filtered);
       
-      // Reset room selection if location changes
       if (formData.roomNumber) {
         const roomStillAvailable = filtered.find(r => r.roomNumber === formData.roomNumber);
         if (!roomStillAvailable) {
@@ -50,7 +48,6 @@ const TenantsTab = ({ data, token, selectedLocation, onUpdate, rooms }) => {
     e.preventDefault();
     setError('');
     
-    // Validate room availability
     const selectedRoom = availableRooms.find(room => room.roomNumber === formData.roomNumber);
     if (!selectedRoom) {
       setError('Please select a valid room');
@@ -84,7 +81,7 @@ const TenantsTab = ({ data, token, selectedLocation, onUpdate, rooms }) => {
     }
   };
 
-  const closeModal = () => {
+  const closeForm = () => {
     setShowForm(false);
     setNewPasskey('');
     setError('');
@@ -98,280 +95,339 @@ const TenantsTab = ({ data, token, selectedLocation, onUpdate, rooms }) => {
     });
   };
 
-  // Filter and sort tenants by location and room
-  const filteredTenants = data.sort((a, b) => {
-    // First sort by location
-    if (a.location !== b.location) {
-      return a.location.localeCompare(b.location);
+  // Group tenants by location
+  const tenantsByLocation = data.reduce((acc, tenant) => {
+    if (!acc[tenant.location]) {
+      acc[tenant.location] = [];
     }
-    // Then by room number
-    return a.roomNumber.localeCompare(b.roomNumber);
+    acc[tenant.location].push(tenant);
+    return acc;
+  }, {});
+
+  // Sort tenants within each location by room number
+  Object.keys(tenantsByLocation).forEach(location => {
+    tenantsByLocation[location].sort((a, b) => a.roomNumber.localeCompare(b.roomNumber));
   });
 
+  const locations = Object.keys(tenantsByLocation).sort();
+
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h3 className="text-2xl font-bold text-gray-900">Tenants</h3>
-          <p className="text-gray-600 mt-1">Total: {data.length} tenant{data.length !== 1 ? 's' : ''}</p>
+    <div className="space-y-6">
+      {/* Header Section */}
+      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md">
+              <Users size={24} className="text-white" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-gray-900">Tenants</h3>
+              <p className="text-sm text-gray-600">Total: {data.length} tenant{data.length !== 1 ? 's' : ''}</p>
+            </div>
+          </div>
+          <button 
+            onClick={() => setShowForm(!showForm)}
+            className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-semibold shadow-md"
+          >
+            {showForm ? 'Cancel' : '+ Add Tenant'}
+          </button>
         </div>
-        <button 
-          onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors duration-200"
-        >
-          <Plus size={18} />
-          <span>Add Tenant</span>
-        </button>
       </div>
 
-      {filteredTenants.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm p-16 text-center">
-          <Users size={48} className="mx-auto mb-4 opacity-30 text-gray-400" />
-          <h3 className="text-xl font-semibold mb-2 text-gray-900">No Tenants</h3>
-          <p className="text-gray-600">Add your first tenant to get started</p>
-        </div>
-      ) : (
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
-                <tr>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Name</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Email</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Phone</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Room</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Location</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Rent</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Join Date</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {filteredTenants.map(tenant => (
-                  <tr key={tenant._id} className="hover:bg-gray-50 transition-colors duration-150">
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{tenant.name}</td>
-                    <td className="px-6 py-4 text-sm text-gray-700">{tenant.email}</td>
-                    <td className="px-6 py-4 text-sm text-gray-700">{tenant.phone}</td>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">{tenant.roomNumber}</td>
-                    <td className="px-6 py-4 text-sm text-gray-700">{tenant.location}</td>
-                    <td className="px-6 py-4 text-sm font-semibold text-gray-900">₹{tenant.rentAmount.toLocaleString('en-IN')}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      {new Date(tenant.joinDate).toLocaleDateString('en-IN', { 
-                        year: 'numeric', 
-                        month: 'short', 
-                        day: 'numeric' 
-                      })}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        tenant.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                      }`}>
-                        {tenant.isActive ? 'Active' : 'Inactive'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <button
-                        onClick={() => handleDelete(tenant._id)}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
-                        title="Delete Tenant"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      {/* Add Tenant Form - Inline */}
+      {showForm && (
+        <div className="bg-white rounded-xl shadow-sm p-8 border-2 border-blue-200">
+          <div className="flex justify-between items-center mb-6">
+            <h4 className="text-2xl font-bold text-gray-900">Add New Tenant</h4>
+            <button 
+              onClick={closeForm}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+            >
+              <X size={24} className="text-gray-500" />
+            </button>
           </div>
+
+          {newPasskey ? (
+            <div>
+              <div className="bg-green-50 border-2 border-green-300 rounded-xl p-4 mb-6">
+                <p className="text-green-800 font-bold text-lg">
+                  ✓ Tenant Created Successfully!
+                </p>
+              </div>
+              
+              <div className="bg-gray-50 rounded-xl p-6 mb-6 border-2 border-gray-300">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-blue-600 rounded-lg">
+                    <Key size={20} className="text-white" />
+                  </div>
+                  <p className="font-bold text-gray-900 text-lg">Tenant Passkey</p>
+                </div>
+                <div className="bg-white p-6 rounded-xl border-2 border-dashed border-blue-600">
+                  <p className="text-center font-mono text-3xl font-bold text-gray-900">
+                    {newPasskey}
+                  </p>
+                </div>
+                <div className="mt-4 bg-amber-50 border-2 border-amber-300 rounded-lg p-4 flex items-start gap-3">
+                  <AlertCircle size={20} className="text-amber-700 flex-shrink-0 mt-0.5" />
+                  <p className="text-amber-800 text-sm font-semibold">
+                    Save this passkey! Provide it to the tenant for login.
+                  </p>
+                </div>
+              </div>
+              
+              <button 
+                onClick={closeForm}
+                className="w-full px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-all duration-200 font-semibold"
+              >
+                Done
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {error && (
+                <div className="bg-red-50 border-2 border-red-300 rounded-lg p-4 flex items-start gap-3">
+                  <AlertCircle size={20} className="text-red-700 flex-shrink-0 mt-0.5" />
+                  <p className="text-red-800 text-sm font-semibold">{error}</p>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Full Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="Enter full name"
+                    required
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Email <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    placeholder="Enter email address"
+                    required
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Phone <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  placeholder="Enter 10-digit phone number"
+                  required
+                  pattern="[0-9]{10}"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Location <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={formData.location}
+                  onChange={(e) => setFormData({ ...formData, location: e.target.value, roomNumber: '', rentAmount: '' })}
+                  required
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="Location A">Location A</option>
+                  <option value="Location B">Location B</option>
+                  <option value="Location C">Location C</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Select Room <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={formData.roomNumber}
+                  onChange={handleRoomSelect}
+                  required
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="">-- Select a room --</option>
+                  {availableRooms.map(room => (
+                    <option key={room._id} value={room.roomNumber}>
+                      Room {room.roomNumber} - Floor {room.floor} - {room.capacity - room.currentOccupancy} bed(s) available - ₹{room.rentAmount.toLocaleString('en-IN')}/month
+                    </option>
+                  ))}
+                </select>
+                {availableRooms.length === 0 && (
+                  <div className="mt-3 bg-red-50 border-2 border-red-200 rounded-lg p-3 flex items-start gap-2">
+                    <AlertCircle size={16} className="text-red-600 flex-shrink-0 mt-0.5" />
+                    <p className="text-sm text-red-700 font-semibold">
+                      No rooms available at this location.
+                    </p>
+                  </div>
+                )}
+              </div>
+              
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Monthly Rent <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <span className="absolute left-4 top-3.5 text-gray-600 font-bold">₹</span>
+                  <input
+                    type="number"
+                    value={formData.rentAmount}
+                    readOnly
+                    placeholder="Auto-filled based on room"
+                    className="w-full pl-8 pr-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-50 font-bold text-gray-900"
+                  />
+                </div>
+              </div>
+              
+              <div className="flex gap-4">
+                <button 
+                  type="submit" 
+                  disabled={availableRooms.length === 0}
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-200 font-semibold shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Create Tenant
+                </button>
+                <button 
+                  type="button" 
+                  onClick={closeForm}
+                  className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-200 font-semibold"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          )}
         </div>
       )}
 
-      {showForm && (
-        <div 
-          className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 backdrop-blur-sm"
-          onClick={closeModal}
-        >
-          <div 
-            className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="sticky top-0 bg-gradient-to-r from-gray-900 to-gray-800 text-white px-6 py-4 flex justify-between items-center rounded-t-2xl">
-              <h3 className="text-2xl font-bold">Add New Tenant</h3>
-              <button 
-                onClick={closeModal}
-                className="p-2 hover:bg-gray-700 rounded-lg transition-colors duration-200"
-              >
-                <X size={24} />
-              </button>
-            </div>
-
-            <div className="p-6">
-              {newPasskey ? (
-                <div>
-                  <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4 mb-6">
-                    <p className="text-green-800 font-semibold flex items-center gap-2">
-                      ✓ Tenant created successfully!
-                    </p>
+      {data.length === 0 ? (
+        <div className="bg-white rounded-xl shadow-sm p-16 text-center border border-gray-200">
+          <Users size={48} className="mx-auto mb-4 opacity-30 text-gray-400" />
+          <h3 className="text-xl font-semibold mb-2 text-gray-900">No Tenants Yet</h3>
+          <p className="text-gray-600">Add your first tenant to get started</p>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {locations.map((location) => {
+            const tenants = tenantsByLocation[location];
+            
+            return (
+              <div key={location} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                {/* Location Header */}
+                <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <MapPin size={18} className="text-gray-600" />
+                    <span className="font-bold text-gray-900 text-lg">{location}</span>
                   </div>
-                  
-                  <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 mb-6 border-2 border-gray-200">
-                    <div className="flex items-center gap-2 mb-4">
-                      <Key size={20} className="text-gray-700" />
-                      <p className="font-semibold text-gray-900">Tenant Passkey</p>
-                    </div>
-                    <div className="bg-white p-6 rounded-lg border-2 border-dashed border-gray-900 shadow-sm">
-                      <p className="text-center font-mono text-3xl font-bold tracking-widest text-gray-900">
-                        {newPasskey}
-                      </p>
-                    </div>
-                    <div className="mt-4 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                      <p className="text-yellow-800 text-sm font-medium">
-                        ⚠️ Important: Please save this passkey and provide it to the tenant. It cannot be recovered later.
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <button 
-                    onClick={closeModal}
-                    className="w-full px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors duration-200 font-medium"
-                  >
-                    Done
-                  </button>
+                  <span className="px-4 py-1.5 bg-gray-200 text-gray-900 font-semibold text-sm rounded-lg">
+                    {tenants.length} tenant{tenants.length !== 1 ? 's' : ''}
+                  </span>
                 </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  {error && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                      <p className="text-red-800 text-sm">{error}</p>
-                    </div>
-                  )}
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Full Name *
-                      </label>
-                      <input
-                        type="text"
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        placeholder="Enter full name"
-                        required
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Email *
-                      </label>
-                      <input
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        placeholder="Enter email"
-                        required
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Phone *
-                    </label>
-                    <input
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      placeholder="Enter phone number"
-                      required
-                      pattern="[0-9]{10}"
-                      title="Please enter a 10-digit phone number"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Location *
-                    </label>
-                    <select
-                      value={formData.location}
-                      onChange={(e) => setFormData({ ...formData, location: e.target.value, roomNumber: '', rentAmount: '' })}
-                      required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                    >
-                      <option value="Location A">Location A</option>
-                      <option value="Location B">Location B</option>
-                      <option value="Location C">Location C</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Select Room *
-                    </label>
-                    <select
-                      value={formData.roomNumber}
-                      onChange={handleRoomSelect}
-                      required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                    >
-                      <option value="">-- Select a room --</option>
-                      {availableRooms.map(room => (
-                        <option key={room._id} value={room.roomNumber}>
-                          Room {room.roomNumber} - Floor {room.floor} - {room.capacity - room.currentOccupancy} bed(s) available - ₹{room.rentAmount.toLocaleString('en-IN')}/month
-                        </option>
+                {/* Tenants Table */}
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50 border-b border-gray-200">
+                      <tr>
+                        <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wide">Name</th>
+                        <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wide">Room</th>
+                        <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wide">Contact</th>
+                        <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wide">Rent</th>
+                        <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wide">Joined</th>
+                        <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wide">Status</th>
+                        <th className="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wide">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {tenants.map(tenant => (
+                        <tr key={tenant._id} className="hover:bg-gray-50 transition-colors">
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-2">
+                              <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <Users size={16} className="text-gray-600" />
+                              </div>
+                              <span className="font-semibold text-gray-900 text-sm">{tenant.name}</span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-1.5">
+                              <Home size={14} className="text-gray-400" />
+                              <span className="font-bold text-gray-900 text-sm">{tenant.roomNumber}</span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-1.5">
+                                <Mail size={12} className="text-gray-400" />
+                                <span className="text-xs text-gray-600 truncate max-w-[200px]">{tenant.email}</span>
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                <Phone size={12} className="text-gray-400" />
+                                <span className="text-xs text-gray-600">{tenant.phone}</span>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-1">
+                              <IndianRupee size={14} className="text-gray-600" />
+                              <span className="font-bold text-gray-900 text-sm">
+                                {tenant.rentAmount.toLocaleString('en-IN')}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-1.5">
+                              <Calendar size={12} className="text-gray-400" />
+                              <span className="text-xs text-gray-600">
+                                {new Date(tenant.joinDate).toLocaleDateString('en-US', { 
+                                  month: 'short', 
+                                  year: 'numeric' 
+                                })}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                              tenant.isActive 
+                                ? 'bg-green-100 text-green-700' 
+                                : 'bg-red-100 text-red-700'
+                            }`}>
+                              {tenant.isActive ? 'Active' : 'Inactive'}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">
+                            <button
+                              onClick={() => handleDelete(tenant._id)}
+                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                              title="Remove tenant"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </td>
+                        </tr>
                       ))}
-                    </select>
-                    {availableRooms.length === 0 && (
-                      <p className="text-sm text-red-600 mt-1">
-                        No rooms available at this location. Please add rooms first or select a different location.
-                      </p>
-                    )}
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Monthly Rent *
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-3 top-2.5 text-gray-500">₹</span>
-                      <input
-                        type="number"
-                        value={formData.rentAmount}
-                        onChange={(e) => setFormData({ ...formData, rentAmount: e.target.value })}
-                        placeholder="Rent amount"
-                        required
-                        readOnly
-                        className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                      />
-                    </div>
-                    <p className="text-xs text-gray-500 mt-1">Rent is set automatically based on the selected room</p>
-                  </div>
-                  
-                  <div className="flex gap-4 pt-4">
-                    <button 
-                      type="submit" 
-                      disabled={availableRooms.length === 0}
-                      className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
-                    >
-                      Create Tenant
-                    </button>
-                    <button 
-                      type="button" 
-                      onClick={closeModal}
-                      className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200 font-medium"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </form>
-              )}
-            </div>
-          </div>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

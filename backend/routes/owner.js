@@ -179,10 +179,26 @@ router.put('/complaints/:id', authenticateOwner, async (req, res) => {
   }
 });
 
-// Create tenant with auto-generated passkey
+// Create tenant with auto-generated passkey - FIXED VERSION
 router.post('/tenants', authenticateOwner, async (req, res) => {
   try {
     const { name, email, phone, roomNumber, location, rentAmount } = req.body;
+
+    // First, verify the room exists and has available space
+    const room = await Room.findOne({ roomNumber, location });
+    
+    if (!room) {
+      return res.status(404).json({ message: 'Room not found at this location' });
+    }
+
+    // Check if room has available beds
+    if (room.currentOccupancy >= room.capacity) {
+      return res.status(400).json({ 
+        message: 'This room is full. Please select another room.',
+        currentOccupancy: room.currentOccupancy,
+        capacity: room.capacity
+      });
+    }
 
     // Generate unique passkey
     const passkey = `HST-${uuidv4().substring(0, 8).toUpperCase()}`;
@@ -199,21 +215,28 @@ router.post('/tenants', authenticateOwner, async (req, res) => {
 
     await tenant.save();
 
-    // Update room occupancy AND vacancy status
-    const room = await Room.findOneAndUpdate(
-      { roomNumber, location },
-      { $inc: { currentOccupancy: 1 } },
-      { new: true }
-    );
+    // Update room occupancy
+    room.currentOccupancy += 1;
+    
+    // Update vacancy status based on new occupancy
+    room.isVacant = room.currentOccupancy < room.capacity;
+    
+    await room.save();
 
-    // Update vacancy status
-    if (room) {
-      room.isVacant = room.currentOccupancy < room.capacity;
-      await room.save();
-    }
+    console.log(`Room ${roomNumber} updated: Occupancy ${room.currentOccupancy}/${room.capacity}, isVacant: ${room.isVacant}`);
 
-    res.status(201).json({ message: 'Tenant created successfully', tenant, passkey });
+    res.status(201).json({ 
+      message: 'Tenant created successfully', 
+      tenant, 
+      passkey,
+      roomUpdate: {
+        currentOccupancy: room.currentOccupancy,
+        capacity: room.capacity,
+        isVacant: room.isVacant
+      }
+    });
   } catch (error) {
+    console.error('Error creating tenant:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
@@ -249,7 +272,7 @@ router.put('/tenants/:id', authenticateOwner, async (req, res) => {
   }
 });
 
-// Delete tenant
+// Delete tenant - FIXED VERSION
 router.delete('/tenants/:id', authenticateOwner, async (req, res) => {
   try {
     const tenant = await Tenant.findById(req.params.id);
@@ -259,23 +282,35 @@ router.delete('/tenants/:id', authenticateOwner, async (req, res) => {
     }
 
     // Update room occupancy when deleting tenant
-    const room = await Room.findOneAndUpdate(
-      { roomNumber: tenant.roomNumber, location: tenant.location },
-      { $inc: { currentOccupancy: -1 } },
-      { new: true }
-    );
+    const room = await Room.findOne({ 
+      roomNumber: tenant.roomNumber, 
+      location: tenant.location 
+    });
 
-    // Update vacancy status
     if (room) {
+      room.currentOccupancy = Math.max(0, room.currentOccupancy - 1);
+      
+      // Update vacancy status
       room.isVacant = room.currentOccupancy < room.capacity;
+      
       await room.save();
+      
+      console.log(`Room ${room.roomNumber} updated after tenant deletion: Occupancy ${room.currentOccupancy}/${room.capacity}, isVacant: ${room.isVacant}`);
     }
 
     // Delete the tenant
     await Tenant.findByIdAndDelete(req.params.id);
 
-    res.json({ message: 'Tenant deleted successfully' });
+    res.json({ 
+      message: 'Tenant deleted successfully',
+      roomUpdate: room ? {
+        currentOccupancy: room.currentOccupancy,
+        capacity: room.capacity,
+        isVacant: room.isVacant
+      } : null
+    });
   } catch (error) {
+    console.error('Error deleting tenant:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
@@ -330,16 +365,20 @@ router.put('/leave-requests/:id', authenticateOwner, async (req, res) => {
       await Tenant.findByIdAndUpdate(leaveRequest.tenantId, { isActive: false });
 
       // Update room occupancy AND vacancy status
-      const room = await Room.findOneAndUpdate(
-        { roomNumber: leaveRequest.roomNumber, location: leaveRequest.location },
-        { $inc: { currentOccupancy: -1 } },
-        { new: true }
-      );
+      const room = await Room.findOne({
+        roomNumber: leaveRequest.roomNumber, 
+        location: leaveRequest.location 
+      });
 
-      // Update vacancy status
       if (room) {
+        room.currentOccupancy = Math.max(0, room.currentOccupancy - 1);
+        
+        // Update vacancy status
         room.isVacant = room.currentOccupancy < room.capacity;
+        
         await room.save();
+        
+        console.log(`Room ${room.roomNumber} updated after leave approval: Occupancy ${room.currentOccupancy}/${room.capacity}, isVacant: ${room.isVacant}`);
       }
     }
 
@@ -385,13 +424,23 @@ router.get('/menu', authenticateOwner, async (req, res) => {
   }
 });
 
-// Create room
+// Create room - FIXED VERSION
 router.post('/rooms', authenticateOwner, async (req, res) => {
   try {
-    const room = new Room(req.body);
+    const roomData = {
+      ...req.body,
+      currentOccupancy: 0, // Initialize with 0 occupancy
+      isVacant: true // New room is always vacant
+    };
+    
+    const room = new Room(roomData);
     await room.save();
+    
+    console.log(`Room ${room.roomNumber} created: Occupancy ${room.currentOccupancy}/${room.capacity}, isVacant: ${room.isVacant}`);
+    
     res.status(201).json({ message: 'Room created successfully', room });
   } catch (error) {
+    console.error('Error creating room:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
@@ -408,7 +457,7 @@ router.get('/rooms', authenticateOwner, async (req, res) => {
   }
 });
 
-// Update room
+// Update room - FIXED VERSION
 router.put('/rooms/:id', authenticateOwner, async (req, res) => {
   try {
     const room = await Room.findByIdAndUpdate(
@@ -424,6 +473,8 @@ router.put('/rooms/:id', authenticateOwner, async (req, res) => {
     // Update vacancy status based on occupancy
     room.isVacant = room.currentOccupancy < room.capacity;
     await room.save();
+    
+    console.log(`Room ${room.roomNumber} updated: Occupancy ${room.currentOccupancy}/${room.capacity}, isVacant: ${room.isVacant}`);
 
     res.json({ message: 'Room updated successfully', room });
   } catch (error) {

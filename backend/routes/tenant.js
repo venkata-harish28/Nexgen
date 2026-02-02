@@ -88,17 +88,29 @@ router.get('/complaints', authenticateTenant, async (req, res) => {
   }
 });
 
-// Get vacant rooms at tenant's location - UPDATED TO SHOW ROOMS WITH AVAILABLE BEDS
+// Get vacant rooms at tenant's location - FIXED VERSION
 router.get('/rooms/vacant', authenticateTenant, async (req, res) => {
   try {
-    // Find rooms that have at least one available bed
+    // Find all rooms at the tenant's location
     const rooms = await Room.find({
-      location: req.tenant.location,
-      $expr: { $lt: ['$currentOccupancy', '$capacity'] } // currentOccupancy < capacity
+      location: req.tenant.location
     }).sort({ roomNumber: 1 });
     
-    res.json(rooms);
+    // Filter rooms that have available beds (currentOccupancy < capacity)
+    const availableRooms = rooms.filter(room => room.currentOccupancy < room.capacity);
+    
+    // Also update isVacant status for all rooms (data consistency)
+    for (const room of rooms) {
+      const shouldBeVacant = room.currentOccupancy < room.capacity;
+      if (room.isVacant !== shouldBeVacant) {
+        room.isVacant = shouldBeVacant;
+        await room.save();
+      }
+    }
+    
+    res.json(availableRooms);
   } catch (error) {
+    console.error('Error fetching vacant rooms:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });

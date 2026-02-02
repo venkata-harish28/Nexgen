@@ -1,17 +1,17 @@
 import React from 'react';
-import { Users, Home, AlertCircle, CreditCard, MapPin, TrendingUp, Clock } from 'lucide-react';
+import { Users, Home, AlertCircle, CreditCard, MapPin, TrendingUp, Clock, DollarSign, ArrowUpRight } from 'lucide-react';
 
 const DashboardTab = ({ stats, locationData = [] }) => {
   const occupancyPercentage = Math.round((stats?.occupiedRooms / stats?.totalRooms * 100) || 0);
 
-  // Sample location data structure - you'll need to provide this from your backend
+  // Sample location data structure
   const locations = locationData.length > 0 ? locationData : [
     { name: 'Main Building', revenue: 45000, growth: '+15%', tenants: 32, occupancy: 85 },
     { name: 'Annexe Block', revenue: 38000, growth: '+8%', tenants: 28, occupancy: 70 },
     { name: 'East Wing', revenue: 29000, growth: '+25%', tenants: 22, occupancy: 65 }
   ];
 
-  // Monthly revenue data for the chart
+  // Monthly revenue data
   const monthlyData = [
     { month: 'Jan', actual: 52000, forecast: 50000 },
     { month: 'Feb', actual: 48000, forecast: 52000 },
@@ -23,197 +23,166 @@ const DashboardTab = ({ stats, locationData = [] }) => {
 
   const maxRevenue = Math.max(...monthlyData.map(d => Math.max(d.actual, d.forecast)));
 
-  // Occupancy segments for donut chart
-  const occupancySegments = [
-    { label: 'Occupied', percentage: 75, color: '#6366f1' },
-    { label: 'Vacant', percentage: 15, color: '#8b5cf6' },
-    { label: 'Maintenance', percentage: 10, color: '#ec4899' }
-  ];
-
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <h3 className="text-3xl font-bold mb-8 text-gray-900">Dashboard Overview</h3>
+    <div className="space-y-6 font-sans" style={{ fontFamily: "'Poppins', 'Segoe UI', system-ui, -apple-system, sans-serif" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+      `}</style>
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard Overview</h1>
+        <p className="text-gray-600">Monitor your hostel operations and performance</p>
+      </div>
       
-      {/* Top Stats Grid - 4 Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {/* Revenue by Location */}
-        <div className="bg-white rounded-2xl shadow-sm p-6 hover:shadow-md transition-shadow duration-200">
-          <div className="flex justify-between items-start mb-4">
-            <div>
-              <p className="text-sm text-gray-600 mb-1">Main Building</p>
-              <h2 className="text-3xl font-bold text-gray-900">₹45K</h2>
+      {/* Main Stats Grid - 4 Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+        {/* Total Revenue Card */}
+        <div className="group bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-200">
+          <div className="flex items-start justify-between mb-4">
+            <div className="p-2.5 bg-blue-50 rounded-lg">
+              <DollarSign size={24} className="text-blue-600" strokeWidth={2} />
             </div>
-            <MapPin size={24} className="text-blue-500" />
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-1 rounded">+15%</span>
-            <span className="text-xs text-gray-500">vs last month</span>
-          </div>
-        </div>
-
-        {/* Revenue by Room Type */}
-        <div className="bg-white rounded-2xl shadow-sm p-6 hover:shadow-md transition-shadow duration-200">
-          <div className="flex justify-between items-start mb-4">
-            <div>
-              <p className="text-sm text-gray-600 mb-1">Annexe Block</p>
-              <h2 className="text-3xl font-bold text-gray-900">₹38K</h2>
-            </div>
-            <Home size={24} className="text-green-500" />
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-1 rounded">+8%</span>
-            <span className="text-xs text-gray-500">vs last month</span>
-          </div>
-        </div>
-
-        {/* Revenue by Facilities */}
-        <div className="bg-white rounded-2xl shadow-sm p-6 hover:shadow-md transition-shadow duration-200">
-          <div className="flex justify-between items-start mb-4">
-            <div>
-              <p className="text-sm text-gray-600 mb-1">East Wing</p>
-              <h2 className="text-3xl font-bold text-gray-900">₹29K</h2>
-            </div>
-            <CreditCard size={24} className="text-purple-500" />
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-1 rounded">+25%</span>
-            <span className="text-xs text-gray-500">vs last month</span>
-          </div>
-        </div>
-
-        {/* Hostel Metrics */}
-        <div className="bg-white rounded-2xl shadow-sm p-6 hover:shadow-md transition-shadow duration-200">
-          <div className="mb-4">
-            <p className="text-sm text-gray-600 mb-1">Revenue per Tenant</p>
-            <h2 className="text-3xl font-bold text-gray-900">₹4,200</h2>
-            <div className="flex items-center gap-2 mt-2">
-              <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-1 rounded">+8%</span>
-            </div>
-          </div>
-          <div className="mb-3">
-            <p className="text-sm text-gray-600 mb-1">Avg Occupancy Rate</p>
-            <div className="flex items-baseline gap-2">
-              <span className="text-xl font-bold text-gray-900">73%</span>
-              <span className="text-xs font-semibold text-green-600">+12%</span>
-            </div>
+            <span className="flex items-center gap-1 px-2.5 py-1 bg-green-50 text-green-700 text-xs font-semibold rounded-md">
+              <ArrowUpRight size={14} />
+              12.5%
+            </span>
           </div>
           <div>
-            <p className="text-sm text-gray-600 mb-1">Tenant Churn Rate</p>
-            <div className="flex items-baseline gap-2">
-              <span className="text-xl font-bold text-gray-900">3.2%</span>
-              <span className="text-xs font-semibold text-red-600">+0.3%</span>
+            <p className="text-sm font-medium text-gray-600 mb-1">Total Revenue</p>
+            <h2 className="text-3xl font-bold text-gray-900">₹{stats?.monthlyRevenue ? (stats.monthlyRevenue / 1000).toFixed(0) : '112'}K</h2>
+            <p className="text-xs text-gray-500 mt-1">This month</p>
+          </div>
+        </div>
+
+        {/* Active Tenants Card */}
+        <div className="group bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-200">
+          <div className="flex items-start justify-between mb-4">
+            <div className="p-2.5 bg-purple-50 rounded-lg">
+              <Users size={24} className="text-purple-600" strokeWidth={2} />
             </div>
+            <span className="px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded-md">
+              Active
+            </span>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-gray-600 mb-1">Total Tenants</p>
+            <h2 className="text-3xl font-bold text-gray-900">{stats?.totalTenants || 82}</h2>
+            <p className="text-xs text-gray-500 mt-1">Across all locations</p>
+          </div>
+        </div>
+
+        {/* Occupancy Rate Card */}
+        <div className="group bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-200">
+          <div className="flex items-start justify-between mb-4">
+            <div className="p-2.5 bg-green-50 rounded-lg">
+              <Home size={24} className="text-green-600" strokeWidth={2} />
+            </div>
+            <span className="px-2.5 py-1 bg-green-50 text-green-700 text-xs font-semibold rounded-md">
+              {occupancyPercentage}%
+            </span>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-gray-600 mb-1">Occupancy Rate</p>
+            <h2 className="text-3xl font-bold text-gray-900">{stats?.occupiedRooms || 0}<span className="text-xl text-gray-400">/{stats?.totalRooms || 0}</span></h2>
+            <p className="text-xs text-gray-500 mt-1">Rooms occupied</p>
+          </div>
+        </div>
+
+        {/* Pending Items Card */}
+        <div className="group bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-200">
+          <div className="flex items-start justify-between mb-4">
+            <div className="p-2.5 bg-amber-50 rounded-lg">
+              <AlertCircle size={24} className="text-amber-600" strokeWidth={2} />
+            </div>
+            <span className="px-2.5 py-1 bg-red-50 text-red-700 text-xs font-semibold rounded-md">
+              Urgent
+            </span>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-gray-600 mb-1">Pending Actions</p>
+            <h2 className="text-3xl font-bold text-gray-900">{(stats?.pendingComplaints || 0) + (stats?.pendingLeaveRequests || 0)}</h2>
+            <p className="text-xs text-gray-500 mt-1">{stats?.pendingComplaints || 0} complaints, {stats?.pendingLeaveRequests || 0} requests</p>
           </div>
         </div>
       </div>
 
-      {/* Bottom Section - 2 Large Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Occupancy by Location - Donut Chart */}
-        <div className="bg-white rounded-2xl shadow-sm p-6">
-          <h4 className="text-xl font-bold mb-6 text-gray-900">Occupancy by Location</h4>
-          
-          <div className="flex items-center justify-center mb-6">
-            <div className="relative w-64 h-64">
-              {/* Donut Chart using CSS */}
-              <svg viewBox="0 0 200 200" className="w-64 h-64 transform -rotate-90">
-                {/* Background circle */}
-                <circle
-                  cx="100"
-                  cy="100"
-                  r="80"
-                  fill="none"
-                  stroke="#f3f4f6"
-                  strokeWidth="40"
-                />
-                
-                {/* Occupied - Blue */}
-                <circle
-                  cx="100"
-                  cy="100"
-                  r="80"
-                  fill="none"
-                  stroke="#6366f1"
-                  strokeWidth="40"
-                  strokeDasharray="377 503"
-                  strokeLinecap="round"
-                />
-                
-                {/* Vacant - Purple */}
-                <circle
-                  cx="100"
-                  cy="100"
-                  r="80"
-                  fill="none"
-                  stroke="#8b5cf6"
-                  strokeWidth="40"
-                  strokeDasharray="75 503"
-                  strokeDashoffset="-377"
-                  strokeLinecap="round"
-                />
-                
-                {/* Maintenance - Pink */}
-                <circle
-                  cx="100"
-                  cy="100"
-                  r="80"
-                  fill="none"
-                  stroke="#ec4899"
-                  strokeWidth="40"
-                  strokeDasharray="50 503"
-                  strokeDashoffset="-452"
-                  strokeLinecap="round"
-                />
-              </svg>
+      {/* Location Performance & Revenue Chart */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        {/* Location Performance Cards */}
+        <div className="space-y-4">
+          <h3 className="text-xl font-bold text-gray-900 mb-4">Location Performance</h3>
+          {locations.map((location, index) => (
+            <div 
+              key={index}
+              className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md transition-all duration-200"
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className={`p-2.5 rounded-lg ${
+                    index === 0 ? 'bg-blue-50' :
+                    index === 1 ? 'bg-purple-50' :
+                    'bg-green-50'
+                  }`}>
+                    <MapPin size={20} className={`${
+                      index === 0 ? 'text-blue-600' :
+                      index === 1 ? 'text-purple-600' :
+                      'text-green-600'
+                    }`} strokeWidth={2} />
+                  </div>
+                  <div>
+                    <h4 className="text-base font-semibold text-gray-900">{location.name}</h4>
+                    <p className="text-sm text-gray-500">{location.tenants} tenants</p>
+                  </div>
+                </div>
+                <span className="flex items-center gap-1 px-2.5 py-1 bg-green-50 text-green-700 text-xs font-semibold rounded-md">
+                  <ArrowUpRight size={12} />
+                  {location.growth}
+                </span>
+              </div>
               
-              {/* Center label */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-gray-900">{occupancyPercentage}%</div>
-                  <div className="text-sm text-gray-600">Total Occupancy</div>
+              <div className="grid grid-cols-2 gap-3 mt-4">
+                <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                  <p className="text-xs font-medium text-gray-600 mb-1">Revenue</p>
+                  <p className="text-xl font-bold text-gray-900">₹{(location.revenue / 1000).toFixed(0)}K</p>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                  <p className="text-xs font-medium text-gray-600 mb-1">Occupancy</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-xl font-bold text-gray-900">{location.occupancy}%</p>
+                    <div className="flex-1">
+                      <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full rounded-full ${
+                            location.occupancy >= 80 ? 'bg-green-500' :
+                            location.occupancy >= 60 ? 'bg-amber-500' :
+                            'bg-red-500'
+                          }`}
+                          style={{ width: `${location.occupancy}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* Legend */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-4 h-4 rounded-full bg-indigo-500"></div>
-                <span className="text-gray-700">Main Building</span>
-              </div>
-              <span className="font-semibold text-gray-900">85%</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-4 h-4 rounded-full bg-purple-500"></div>
-                <span className="text-gray-700">Annexe Block</span>
-              </div>
-              <span className="font-semibold text-gray-900">70%</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-4 h-4 rounded-full bg-pink-500"></div>
-                <span className="text-gray-700">East Wing</span>
-              </div>
-              <span className="font-semibold text-gray-900">65%</span>
-            </div>
-          </div>
+          ))}
         </div>
 
-        {/* Monthly Revenue vs Target - Bar Chart */}
-        <div className="bg-white rounded-2xl shadow-sm p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h4 className="text-xl font-bold text-gray-900">Monthly Revenue vs Target</h4>
+        {/* Revenue Chart */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="flex items-start justify-between mb-6">
+            <div>
+              <h3 className="text-xl font-bold text-gray-900 mb-1">Monthly Revenue</h3>
+              <p className="text-sm text-gray-600">Actual vs Target performance</p>
+            </div>
             <div className="flex gap-4">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded bg-indigo-500"></div>
-                <span className="text-sm text-gray-600">Actual</span>
+              <div className="flex items-center gap-1.5">
+                <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                <span className="text-xs text-gray-600 font-medium">Actual</span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded bg-pink-400"></div>
-                <span className="text-sm text-gray-600">Target</span>
+              <div className="flex items-center gap-1.5">
+                <div className="w-3 h-3 rounded-full bg-purple-400"></div>
+                <span className="text-xs text-gray-600 font-medium">Target</span>
               </div>
             </div>
           </div>
@@ -222,34 +191,42 @@ const DashboardTab = ({ stats, locationData = [] }) => {
           <div className="relative h-64">
             <div className="absolute inset-0 flex items-end justify-between gap-2 pb-8">
               {monthlyData.map((data, index) => (
-                <div key={index} className="flex-1 flex flex-col items-center gap-1">
-                  {/* Bars container */}
+                <div key={index} className="flex-1 flex flex-col items-center gap-2">
                   <div className="w-full flex justify-center gap-1 items-end h-56">
                     {/* Actual bar */}
-                    <div 
-                      className="w-full bg-indigo-500 rounded-t transition-all duration-500 hover:bg-indigo-600"
-                      style={{ 
-                        height: `${(data.actual / maxRevenue) * 100}%`,
-                        minHeight: '20px'
-                      }}
-                    ></div>
+                    <div className="relative flex-1 group">
+                      <div 
+                        className="w-full bg-blue-500 rounded-t-lg transition-all duration-500 hover:bg-blue-600"
+                        style={{ 
+                          height: `${(data.actual / maxRevenue) * 100}%`,
+                          minHeight: '24px'
+                        }}
+                      ></div>
+                      <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-2 py-0.5 rounded text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                        ₹{(data.actual / 1000).toFixed(0)}K
+                      </div>
+                    </div>
                     {/* Target bar */}
-                    <div 
-                      className="w-full bg-pink-400 rounded-t transition-all duration-500 hover:bg-pink-500"
-                      style={{ 
-                        height: `${(data.forecast / maxRevenue) * 100}%`,
-                        minHeight: '20px'
-                      }}
-                    ></div>
+                    <div className="relative flex-1 group">
+                      <div 
+                        className="w-full bg-purple-400 rounded-t-lg transition-all duration-500 hover:bg-purple-500"
+                        style={{ 
+                          height: `${(data.forecast / maxRevenue) * 100}%`,
+                          minHeight: '24px'
+                        }}
+                      ></div>
+                      <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-gray-900 text-white px-2 py-0.5 rounded text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                        ₹{(data.forecast / 1000).toFixed(0)}K
+                      </div>
+                    </div>
                   </div>
-                  {/* Month label */}
-                  <span className="text-xs text-gray-600 mt-2">{data.month}</span>
+                  <span className="text-xs text-gray-600 font-medium mt-1">{data.month}</span>
                 </div>
               ))}
             </div>
 
             {/* Y-axis labels */}
-            <div className="absolute left-0 top-0 bottom-8 flex flex-col justify-between text-xs text-gray-500 -ml-12">
+            <div className="absolute left-0 top-0 bottom-8 flex flex-col justify-between text-xs text-gray-500 font-medium -ml-12">
               <span>₹{(maxRevenue / 1000).toFixed(0)}K</span>
               <span>₹{(maxRevenue / 2000).toFixed(0)}K</span>
               <span>₹0</span>
@@ -257,52 +234,14 @@ const DashboardTab = ({ stats, locationData = [] }) => {
 
             {/* Grid lines */}
             <div className="absolute inset-0 flex flex-col justify-between pb-8 pointer-events-none">
-              <div className="border-t border-gray-200"></div>
-              <div className="border-t border-gray-200"></div>
+              <div className="border-t border-dashed border-gray-200"></div>
+              <div className="border-t border-dashed border-gray-200"></div>
               <div className="border-t border-gray-200"></div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Additional Stats Row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-        <div className="bg-white rounded-2xl shadow-sm p-6">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-              <Users size={24} className="text-blue-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{stats?.totalTenants || 0}</p>
-              <p className="text-sm text-gray-600">Total Tenants</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow-sm p-6">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center flex-shrink-0">
-              <AlertCircle size={24} className="text-yellow-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{stats?.pendingComplaints || 0}</p>
-              <p className="text-sm text-gray-600">Pending Complaints</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow-sm p-6">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-              <Home size={24} className="text-green-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{stats?.vacantRooms || 0}</p>
-              <p className="text-sm text-gray-600">Vacant Rooms</p>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };

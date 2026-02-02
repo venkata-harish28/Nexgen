@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Home, Edit2, Trash2 } from 'lucide-react';
+import { Plus, Home, Edit2, Trash2, MapPin, Bed, TrendingUp, X, AlertCircle } from 'lucide-react';
 import { ownerAPI } from '../../services/api';
 
 const RoomsTab = ({ data, token, selectedLocation, onUpdate }) => {
@@ -42,7 +42,7 @@ const RoomsTab = ({ data, token, selectedLocation, onUpdate }) => {
       
       setShowForm(false);
       resetForm();
-      onUpdate(); // This will refresh the data
+      onUpdate();
     } catch (error) {
       console.error('Error saving room:', error);
       alert('Failed to save room. Please try again.');
@@ -79,35 +79,85 @@ const RoomsTab = ({ data, token, selectedLocation, onUpdate }) => {
     resetForm();
   };
 
+  // Group rooms by location
+  const roomsByLocation = data.reduce((acc, room) => {
+    if (!acc[room.location]) {
+      acc[room.location] = [];
+    }
+    acc[room.location].push(room);
+    return acc;
+  }, {});
+
+  // Sort rooms within each location by room number
+  Object.keys(roomsByLocation).forEach(location => {
+    roomsByLocation[location].sort((a, b) => a.roomNumber.localeCompare(b.roomNumber));
+  });
+
+  const locations = Object.keys(roomsByLocation).sort();
+
+  const getLocationColor = (index) => {
+    const colors = [
+      { bg: 'bg-blue-500', light: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700', icon: 'bg-blue-500' },
+      { bg: 'bg-blue-500', light: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700', icon: 'bg-blue-500' },
+      { bg: 'bg-teal-500', light: 'bg-teal-50', border: 'border-teal-200', text: 'text-teal-700', icon: 'bg-teal-500' }
+    ];
+    return colors[index % colors.length];
+  };
+
+  // Calculate location stats
+  const getLocationStats = (rooms) => {
+    const totalRooms = rooms.length;
+    const totalCapacity = rooms.reduce((sum, r) => sum + r.capacity, 0);
+    const totalOccupied = rooms.reduce((sum, r) => sum + r.currentOccupancy, 0);
+    const vacantRooms = rooms.filter(r => r.isVacant).length;
+    const avgOccupancy = totalCapacity > 0 ? Math.round((totalOccupied / totalCapacity) * 100) : 0;
+    
+    return { totalRooms, totalCapacity, totalOccupied, vacantRooms, avgOccupancy };
+  };
+
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h3 className="text-2xl font-bold text-gray-900">Rooms Management</h3>
-        <button 
-          onClick={() => {
-            if (showForm) {
-              handleCancel();
-            } else {
-              setShowForm(true);
-            }
-          }}
-          className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors duration-200"
-        >
-          <Plus size={18} />
-          <span>{showForm ? 'Cancel' : 'Add Room'}</span>
-        </button>
+    <div className="space-y-6">
+      {/* Header Section */}
+      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center shadow-md">
+              <Home size={24} className="text-white" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-gray-900">Rooms</h3>
+              <p className="text-sm text-gray-600">Manage all rooms across locations</p>
+            </div>
+          </div>
+          <button 
+            onClick={() => setShowForm(!showForm)}
+            className="px-5 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all duration-200 font-semibold shadow-md"
+          >
+            {showForm ? 'Cancel' : '+ Add Room'}
+          </button>
+        </div>
       </div>
 
+      {/* Add/Edit Room Form - Inline */}
       {showForm && (
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-8 border-2 border-gray-900">
-          <h4 className="text-xl font-bold mb-6 text-gray-900">
-            {editingRoom ? 'Edit Room' : 'Add New Room'}
-          </h4>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-white rounded-xl shadow-sm p-8 border-2 border-indigo-200">
+          <div className="flex justify-between items-center mb-6">
+            <h4 className="text-2xl font-bold text-gray-900">
+              {editingRoom ? 'Edit Room' : 'Add New Room'}
+            </h4>
+            <button 
+              onClick={handleCancel}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+            >
+              <X size={24} className="text-gray-500" />
+            </button>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Room Number *
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Room Number <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -115,19 +165,19 @@ const RoomsTab = ({ data, token, selectedLocation, onUpdate }) => {
                   onChange={(e) => setFormData({ ...formData, roomNumber: e.target.value })}
                   placeholder="e.g., 101, 202, A-101"
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Location *
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Location <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={formData.location}
                   onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg "
                 >
                   <option value="Location A">Location A</option>
                   <option value="Location B">Location B</option>
@@ -136,10 +186,10 @@ const RoomsTab = ({ data, token, selectedLocation, onUpdate }) => {
               </div>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Capacity *
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Capacity (Beds) <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
@@ -149,13 +199,13 @@ const RoomsTab = ({ data, token, selectedLocation, onUpdate }) => {
                   min="1"
                   max="10"
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Floor *
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Floor <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
@@ -164,13 +214,13 @@ const RoomsTab = ({ data, token, selectedLocation, onUpdate }) => {
                   placeholder="Floor number"
                   min="0"
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Monthly Rent (₹) *
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Monthly Rent (₹) <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
@@ -179,13 +229,13 @@ const RoomsTab = ({ data, token, selectedLocation, onUpdate }) => {
                   placeholder="Enter amount"
                   min="0"
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                 />
               </div>
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Amenities (comma-separated)
               </label>
               <input
@@ -193,21 +243,21 @@ const RoomsTab = ({ data, token, selectedLocation, onUpdate }) => {
                 value={formData.amenities}
                 onChange={(e) => setFormData({ ...formData, amenities: e.target.value })}
                 placeholder="e.g., WiFi, AC, Attached Bathroom, Study Table"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               />
             </div>
             
-            <div className="flex gap-3 pt-2">
+            <div className="flex gap-4">
               <button 
                 type="submit" 
-                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 font-medium"
+                className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 font-semibold shadow-md"
               >
-                {editingRoom ? 'Update Room' : 'Add Room'}
+                {editingRoom ? 'Update' : 'Add'} Room
               </button>
               <button 
                 type="button"
                 onClick={handleCancel}
-                className="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors duration-200 font-medium"
+                className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-200 font-semibold"
               >
                 Cancel
               </button>
@@ -217,114 +267,177 @@ const RoomsTab = ({ data, token, selectedLocation, onUpdate }) => {
       )}
 
       {data.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm p-16 text-center">
+        <div className="bg-white rounded-xl shadow-sm p-16 text-center border border-gray-200">
           <Home size={48} className="mx-auto mb-4 opacity-30 text-gray-400" />
-          <h3 className="text-xl font-semibold mb-2 text-gray-900">No Rooms</h3>
+          <h3 className="text-xl font-semibold mb-2 text-gray-900">No Rooms Yet</h3>
           <p className="text-gray-600">Add your first room to get started</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {data.map(room => {
-            const occupancyPercentage = (room.currentOccupancy / room.capacity) * 100;
-            const isFullyOccupied = room.currentOccupancy >= room.capacity;
+        <div className="space-y-6">
+          {locations.map((location, locationIndex) => {
+            const colorScheme = getLocationColor(locationIndex);
+            const rooms = roomsByLocation[location];
+            const stats = getLocationStats(rooms);
             
             return (
-              <div key={room._id} className="bg-white rounded-xl shadow-sm p-6 hover:shadow-lg transition-all duration-200 border border-gray-100">
-                {/* Room Header */}
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h4 className="text-xl font-bold text-gray-900">Room {room.roomNumber}</h4>
-                    <p className="text-sm text-gray-500">Floor {room.floor}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                      room.isVacant 
-                        ? 'bg-green-100 text-green-800' 
-                        : isFullyOccupied
-                        ? 'bg-red-100 text-red-800'
-                        : 'bg-yellow-100 text-yellow-800'
-                    }`}>
-                      {room.isVacant ? 'Vacant' : isFullyOccupied ? 'Full' : 'Partially Occupied'}
-                    </span>
-                  </div>
-                </div>
-                
-                {/* Room Details */}
-                <div className="space-y-3 mb-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Location:</span>
-                    <span className="text-sm font-semibold text-gray-900">{room.location}</span>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Capacity:</span>
-                    <span className="text-sm font-semibold text-gray-900">{room.capacity} beds</span>
-                  </div>
-                  
-                  {/* Occupancy Bar */}
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm text-gray-600">Occupancy:</span>
-                      <span className="text-sm font-semibold text-gray-900">
-                        {room.currentOccupancy}/{room.capacity}
-                      </span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className={`h-2 rounded-full transition-all duration-300 ${
-                          occupancyPercentage === 0 
-                            ? 'bg-gray-400'
-                            : occupancyPercentage < 50 
-                            ? 'bg-green-500' 
-                            : occupancyPercentage < 100 
-                            ? 'bg-yellow-500' 
-                            : 'bg-red-500'
-                        }`}
-                        style={{ width: `${occupancyPercentage}%` }}
-                      />
+              <div key={location} className="space-y-4">
+                {/* Location Header with Stats */}
+                <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                  <div className="flex items-center justify-between flex-wrap gap-4 mb-5">
+                    <div className="flex items-center gap-4">
+                      <div className={`flex items-center gap-3 px-5 py-2.5 ${colorScheme.bg} text-white rounded-lg shadow-md`}>
+                        <MapPin size={20} />
+                        <span className="font-bold text-base">{location}</span>
+                      </div>
+                      <div className="px-4 py-2 bg-gray-100 text-gray-700 font-semibold text-sm rounded-lg border border-gray-200">
+                        {stats.totalRooms} room{stats.totalRooms !== 1 ? 's' : ''}
+                      </div>
                     </div>
                   </div>
-                  
-                  <div className="pt-3 border-t border-gray-200">
-                    <p className="text-lg font-bold text-gray-900">
-                      ₹{room.rentAmount.toLocaleString('en-IN')}/month
-                    </p>
-                  </div>
-                </div>
-                
-                {/* Amenities */}
-                {room.amenities && room.amenities.length > 0 && (
-                  <div className="mb-4 pt-3 border-t border-gray-200">
-                    <p className="text-xs font-semibold text-gray-700 mb-2">Amenities:</p>
-                    <div className="flex flex-wrap gap-2">
-                      {room.amenities.map((amenity, index) => (
-                        <span 
-                          key={index} 
-                          className="text-xs px-3 py-1 bg-blue-50 text-blue-700 rounded-full border border-blue-200"
-                        >
-                          {amenity}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
 
-                {/* Action Buttons */}
-                <div className="flex gap-2 pt-3 border-t border-gray-200">
-                  <button
-                    onClick={() => handleEdit(room)}
-                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 text-sm font-medium"
-                  >
-                    <Edit2 size={14} />
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(room._id)}
-                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 text-sm font-medium"
-                  >
-                    <Trash2 size={14} />
-                    Delete
-                  </button>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className={`${colorScheme.light} rounded-lg p-4 border-2 ${colorScheme.border}`}>
+                      <p className="text-xs font-semibold text-gray-600 mb-1">Total Capacity</p>
+                      <p className={`text-xl font-bold ${colorScheme.text}`}>{stats.totalCapacity} beds</p>
+                    </div>
+                    <div className={`${colorScheme.light} rounded-lg p-4 border-2 ${colorScheme.border}`}>
+                      <p className="text-xs font-semibold text-gray-600 mb-1">Occupied</p>
+                      <p className={`text-xl font-bold ${colorScheme.text}`}>{stats.totalOccupied} beds</p>
+                    </div>
+                    <div className={`${colorScheme.light} rounded-lg p-4 border-2 ${colorScheme.border}`}>
+                      <p className="text-xs font-semibold text-gray-600 mb-1">Vacant Rooms</p>
+                      <p className={`text-xl font-bold ${colorScheme.text}`}>{stats.vacantRooms}</p>
+                    </div>
+                    <div className={`${colorScheme.light} rounded-lg p-4 border-2 ${colorScheme.border}`}>
+                      <p className="text-xs font-semibold text-gray-600 mb-1">Occupancy Rate</p>
+                      <div className="flex items-center gap-2">
+                        <p className={`text-xl font-bold ${colorScheme.text}`}>{stats.avgOccupancy}%</p>
+                        <TrendingUp size={18} className={stats.avgOccupancy >= 70 ? 'text-emerald-600' : 'text-amber-600'} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Rooms Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                  {rooms.map(room => {
+                    const occupancyPercentage = (room.currentOccupancy / room.capacity) * 100;
+                    const isFullyOccupied = room.currentOccupancy >= room.capacity;
+                    const availableBeds = room.capacity - room.currentOccupancy;
+                    
+                    return (
+                      <div 
+                        key={room._id} 
+                        className={`${colorScheme.light} rounded-xl shadow-sm p-6 border-2 ${colorScheme.border} hover:shadow-lg transition-all duration-200`}
+                      >
+                        {/* Header */}
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="flex items-center gap-3">
+                            <div className={`p-3 ${colorScheme.icon} rounded-lg shadow-md`}>
+                              <Home size={20} className="text-white" />
+                            </div>
+                            <div>
+                              <h4 className="text-xl font-bold text-gray-900">Room {room.roomNumber}</h4>
+                              <p className="text-sm font-semibold text-gray-600">Floor {room.floor}</p>
+                            </div>
+                          </div>
+                          <span className={`px-3 py-1.5 rounded-full text-xs font-bold shadow-sm ${
+                            room.isVacant 
+                              ? 'bg-emerald-500 text-white' 
+                              : isFullyOccupied
+                              ? 'bg-red-500 text-white'
+                              : 'bg-amber-500 text-white'
+                          }`}>
+                            {room.isVacant ? '✓ Vacant' : isFullyOccupied ? '✕ Full' : '◐ Partial'}
+                          </span>
+                        </div>
+                        
+                        {/* Room Details */}
+                        <div className="space-y-3 mb-4">
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="bg-white rounded-lg p-3 border border-gray-200">
+                              <p className="text-xs font-semibold text-gray-600 mb-1">Capacity</p>
+                              <div className="flex items-center gap-2">
+                                <Bed size={16} className="text-gray-600" />
+                                <p className="text-base font-bold text-gray-900">{room.capacity} beds</p>
+                              </div>
+                            </div>
+                            
+                            <div className="bg-white rounded-lg p-3 border border-gray-200">
+                              <p className="text-xs font-semibold text-gray-600 mb-1">Available</p>
+                              <p className="text-base font-bold text-gray-900">{availableBeds} bed{availableBeds !== 1 ? 's' : ''}</p>
+                            </div>
+                          </div>
+                          
+                          {/* Occupancy Bar */}
+                          <div className="bg-white rounded-lg p-3 border border-gray-200">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-xs font-semibold text-gray-600">Occupancy</span>
+                              <span className="text-sm font-bold text-gray-900">
+                                {room.currentOccupancy}/{room.capacity}
+                              </span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                              <div 
+                                className={`h-2.5 rounded-full transition-all duration-300 ${
+                                  occupancyPercentage === 0 
+                                    ? 'bg-gray-400'
+                                    : occupancyPercentage < 50 
+                                    ? 'bg-emerald-500' 
+                                    : occupancyPercentage < 100 
+                                    ? 'bg-amber-500' 
+                                    : 'bg-red-500'
+                                }`}
+                                style={{ width: `${occupancyPercentage}%` }}
+                              />
+                            </div>
+                          </div>
+                          
+                          <div className="bg-white rounded-lg p-3 border border-gray-200">
+                            <p className="text-xs font-semibold text-gray-600 mb-1">Monthly Rent</p>
+                            <p className="text-xl font-bold text-gray-900">
+                              ₹{room.rentAmount.toLocaleString('en-IN')}
+                            </p>
+                          </div>
+                        </div>
+                        
+                        {/* Amenities */}
+                        {room.amenities && room.amenities.length > 0 && (
+                          <div className="bg-white rounded-lg p-3 mb-4 border border-gray-200">
+                            <p className="text-xs font-semibold text-gray-600 mb-2">Amenities</p>
+                            <div className="flex flex-wrap gap-2">
+                              {room.amenities.map((amenity, index) => (
+                                <span 
+                                  key={index} 
+                                  className={`text-xs px-2.5 py-1 ${colorScheme.light} ${colorScheme.text} rounded-full font-semibold border ${colorScheme.border}`}
+                                >
+                                  {amenity}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Action Buttons */}
+                        <div className="grid grid-cols-2 gap-3">
+                          <button
+                            onClick={() => handleEdit(room)}
+                            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all duration-200 font-semibold shadow-sm"
+                          >
+                            <Edit2 size={16} />
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(room._id)}
+                            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200 font-semibold shadow-sm"
+                          >
+                            <Trash2 size={16} />
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             );
