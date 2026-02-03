@@ -1,181 +1,212 @@
-import axios from "axios";
+import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-/* =======================
-   TENANT API
-======================= */
+// Create axios instance
+const api = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
+// ============= TENANT API =============
 export const tenantAPI = {
-  login: (passkey) =>
-    axios.post(`${API_URL}/tenant/login`, { passkey }),
+  // Login
+  login: (passkey) => 
+    api.post('/tenant/login', { passkey }),
 
+  // Get announcements
   getAnnouncements: (passkey) =>
-    axios.get(`${API_URL}/tenant/announcements`, {
-      headers: { passkey },
+    api.get('/tenant/announcements', {
+      headers: { passkey }
     }),
 
-  submitComplaint: (passkey, data) =>
-    axios.post(`${API_URL}/tenant/complaints`, data, {
-      headers: { passkey },
-    }),
-
+  // Get complaints
   getComplaints: (passkey) =>
-    axios.get(`${API_URL}/tenant/complaints`, {
-      headers: { passkey },
+    api.get('/tenant/complaints', {
+      headers: { passkey }
     }),
 
-  getVacantRooms: (passkey) =>
-    axios.get(`${API_URL}/tenant/rooms/vacant`, {
-      headers: { passkey },
+  // Submit complaint
+  submitComplaint: (passkey, data) =>
+    api.post('/tenant/complaints', data, {
+      headers: { passkey }
     }),
 
-  makePayment: (passkey, data) =>
-    axios.post(`${API_URL}/tenant/payments`, data, {
-      headers: { passkey },
-    }),
+  // Get vacant rooms - FIXED: Use tenant's location from localStorage
+  getVacantRooms: (passkey) => {
+    const tenantData = JSON.parse(localStorage.getItem('tenantData') || '{}');
+    const location = tenantData.location || 'Location A';
+    return api.get('/tenant/rooms/vacant', {
+      params: { location }
+    });
+  },
 
+  // Get payments
   getPayments: (passkey) =>
-    axios.get(`${API_URL}/tenant/payments`, {
-      headers: { passkey },
+    api.get('/tenant/payments', {
+      headers: { passkey }
     }),
 
-  submitLeaveRequest: (passkey, data) =>
-    axios.post(`${API_URL}/tenant/leave-requests`, data, {
-      headers: { passkey },
+  // Make payment
+  makePayment: (passkey, data) =>
+    api.post('/tenant/payments', data, {
+      headers: { passkey }
     }),
 
+  // Get leave requests
   getLeaveRequests: (passkey) =>
-    axios.get(`${API_URL}/tenant/leave-requests`, {
-      headers: { passkey },
+    api.get('/tenant/leave-requests', {
+      headers: { passkey }
     }),
 
-  getMenu: (passkey) =>
-    axios.get(`${API_URL}/tenant/menu`, {
-      headers: { passkey },
+  // Submit leave request
+  submitLeaveRequest: (passkey, data) =>
+    api.post('/tenant/leave-requests', data, {
+      headers: { passkey }
     }),
+
+  // Get menu - FIXED: Get menu for tenant's location
+  getMenu: (passkey) => {
+    const tenantData = JSON.parse(localStorage.getItem('tenantData') || '{}');
+    const location = tenantData.location;
+    return api.get('/tenant/menu', {
+      headers: { passkey },
+      params: location ? { location } : {}
+    });
+  }
 };
 
-/* =======================
-   OWNER API
-======================= */
+// ============= OWNER API =============
 export const ownerAPI = {
-  /* Auth */
+  // Login
   login: (credentials) =>
-    axios.post(`${API_URL}/owner/login`, credentials),
+    api.post('/owner/login', credentials),
 
-  /* Dashboard */
+  // Login with phone
+  loginWithPhone: (phone) =>
+    api.post('/owner/login-phone', { phone }),
+
+  // Register
+  register: (data) =>
+    api.post('/owner/register', data),
+
+  // Dashboard stats
   getDashboardStats: (token, location) =>
-    axios.get(`${API_URL}/owner/dashboard/stats`, {
+    api.get('/owner/dashboard/stats', {
       headers: { Authorization: `Bearer ${token}` },
-      params: { location },
+      params: location ? { location } : {}
     }),
 
-  /* Announcements */
-  createAnnouncement: (token, data) =>
-    axios.post(`${API_URL}/owner/announcements`, data, {
-      headers: { Authorization: `Bearer ${token}` },
-    }),
-
+  // Announcements
   getAnnouncements: (token, location) =>
-    axios.get(`${API_URL}/owner/announcements`, {
+    api.get('/owner/announcements', {
       headers: { Authorization: `Bearer ${token}` },
-      params: { location },
+      params: location ? { location } : {}
+    }),
+
+  createAnnouncement: (token, data) =>
+    api.post('/owner/announcements', data, {
+      headers: { Authorization: `Bearer ${token}` }
     }),
 
   updateAnnouncement: (token, id, data) =>
-    axios.put(`${API_URL}/owner/announcements/${id}`, data, {
-      headers: { Authorization: `Bearer ${token}` },
+    api.put(`/owner/announcements/${id}`, data, {
+      headers: { Authorization: `Bearer ${token}` }
     }),
 
   deleteAnnouncement: (token, id) =>
-    axios.delete(`${API_URL}/owner/announcements/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
+    api.delete(`/owner/announcements/${id}`, {
+      headers: { Authorization: `Bearer ${token}` }
     }),
 
-  /* Complaints */
+  // Complaints
   getComplaints: (token, location, status) =>
-    axios.get(`${API_URL}/owner/complaints`, {
+    api.get('/owner/complaints', {
       headers: { Authorization: `Bearer ${token}` },
-      params: { location, status },
+      params: { location, status }
     }),
 
   updateComplaint: (token, id, data) =>
-    axios.put(`${API_URL}/owner/complaints/${id}`, data, {
-      headers: { Authorization: `Bearer ${token}` },
+    api.put(`/owner/complaints/${id}`, data, {
+      headers: { Authorization: `Bearer ${token}` }
     }),
 
-  /* Tenants */
-  createTenant: (token, data) =>
-    axios.post(`${API_URL}/owner/tenants`, data, {
-      headers: { Authorization: `Bearer ${token}` },
-    }),
-
+  // Tenants
   getTenants: (token, location) =>
-    axios.get(`${API_URL}/owner/tenants`, {
+    api.get('/owner/tenants', {
       headers: { Authorization: `Bearer ${token}` },
-      params: { location },
+      params: location ? { location } : {}
+    }),
+
+  createTenant: (token, data) =>
+    api.post('/owner/tenants', data, {
+      headers: { Authorization: `Bearer ${token}` }
     }),
 
   updateTenant: (token, id, data) =>
-    axios.put(`${API_URL}/owner/tenants/${id}`, data, {
-      headers: { Authorization: `Bearer ${token}` },
+    api.put(`/owner/tenants/${id}`, data, {
+      headers: { Authorization: `Bearer ${token}` }
     }),
 
   deleteTenant: (token, id) =>
-    axios.delete(`${API_URL}/owner/tenants/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
+    api.delete(`/owner/tenants/${id}`, {
+      headers: { Authorization: `Bearer ${token}` }
     }),
 
-  /* Payments */
+  // Payments
   getPayments: (token, location, month, year) =>
-    axios.get(`${API_URL}/owner/payments`, {
+    api.get('/owner/payments', {
       headers: { Authorization: `Bearer ${token}` },
-      params: { location, month, year },
+      params: { location, month, year }
     }),
 
-  /* Leave Requests */
+  // Leave Requests
   getLeaveRequests: (token, location, status) =>
-    axios.get(`${API_URL}/owner/leave-requests`, {
+    api.get('/owner/leave-requests', {
       headers: { Authorization: `Bearer ${token}` },
-      params: { location, status },
+      params: { location, status }
     }),
 
   updateLeaveRequest: (token, id, data) =>
-    axios.put(`${API_URL}/owner/leave-requests/${id}`, data, {
-      headers: { Authorization: `Bearer ${token}` },
+    api.put(`/owner/leave-requests/${id}`, data, {
+      headers: { Authorization: `Bearer ${token}` }
     }),
 
-  /* Menu */
-  saveMenu: (token, data) =>
-    axios.post(`${API_URL}/owner/menu`, data, {
-      headers: { Authorization: `Bearer ${token}` },
-    }),
-
+  // Menu
   getMenu: (token, location) =>
-    axios.get(`${API_URL}/owner/menu`, {
+    api.get('/owner/menu', {
       headers: { Authorization: `Bearer ${token}` },
-      params: { location },
+      params: location ? { location } : {}
     }),
 
-  /* Rooms */
-  createRoom: (token, data) =>
-    axios.post(`${API_URL}/owner/rooms`, data, {
-      headers: { Authorization: `Bearer ${token}` },
+  saveMenu: (token, data) =>
+    api.post('/owner/menu', data, {
+      headers: { Authorization: `Bearer ${token}` }
     }),
 
+  // Rooms
   getRooms: (token, location) =>
-    axios.get(`${API_URL}/owner/rooms`, {
+    api.get('/owner/rooms', {
       headers: { Authorization: `Bearer ${token}` },
-      params: { location },
+      params: location ? { location } : {}
     }),
 
-  updateRoom: (token, roomId, data) =>
-    axios.put(`${API_URL}/owner/rooms/${roomId}`, data, {
-      headers: { Authorization: `Bearer ${token}` },
+  createRoom: (token, data) =>
+    api.post('/owner/rooms', data, {
+      headers: { Authorization: `Bearer ${token}` }
     }),
 
-  deleteRoom: (token, roomId) =>
-    axios.delete(`${API_URL}/owner/rooms/${roomId}`, {
-      headers: { Authorization: `Bearer ${token}` },
+  updateRoom: (token, id, data) =>
+    api.put(`/owner/rooms/${id}`, data, {
+      headers: { Authorization: `Bearer ${token}` }
     }),
+
+  deleteRoom: (token, id) =>
+    api.delete(`/owner/rooms/${id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
 };
+
+export default api;

@@ -20,13 +20,19 @@ router.get('/rooms/vacant', async (req, res) => {
       return res.status(400).json({ message: 'Location parameter is required' });
     }
     
+    console.log(`[TENANT API] Fetching vacant rooms for location: ${location}`);
+    
     // Find all rooms at the specified location
     const rooms = await Room.find({
       location: location
     }).sort({ roomNumber: 1 });
     
+    console.log(`[TENANT API] Total rooms found: ${rooms.length}`);
+    
     // Filter rooms that have available beds (currentOccupancy < capacity)
     const availableRooms = rooms.filter(room => room.currentOccupancy < room.capacity);
+    
+    console.log(`[TENANT API] Available rooms: ${availableRooms.length}`);
     
     // Also update isVacant status for all rooms (data consistency)
     for (const room of rooms) {
@@ -37,12 +43,9 @@ router.get('/rooms/vacant', async (req, res) => {
       }
     }
     
-    console.log(`Fetching vacant rooms for location: ${location}`);
-    console.log(`Found ${availableRooms.length} available rooms`);
-    
     res.json(availableRooms);
   } catch (error) {
-    console.error('Error fetching vacant rooms:', error);
+    console.error('[TENANT API] Error fetching vacant rooms:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
@@ -52,11 +55,16 @@ router.post('/login', async (req, res) => {
   try {
     const { passkey } = req.body;
     
+    console.log(`[TENANT LOGIN] Attempt with passkey: ${passkey}`);
+    
     const tenant = await Tenant.findOne({ passkey, isActive: true });
     
     if (!tenant) {
+      console.log(`[TENANT LOGIN] Failed - Invalid passkey or inactive tenant`);
       return res.status(401).json({ message: 'Invalid passkey' });
     }
+    
+    console.log(`[TENANT LOGIN] Success - Tenant: ${tenant.name}, Location: ${tenant.location}`);
     
     res.json({
       success: true,
@@ -71,7 +79,7 @@ router.post('/login', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('[TENANT LOGIN] Error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
@@ -79,13 +87,18 @@ router.post('/login', async (req, res) => {
 // Get announcements for tenant's location
 router.get('/announcements', authenticateTenant, async (req, res) => {
   try {
+    console.log(`[TENANT API] Fetching announcements for location: ${req.tenant.location}`);
+    
     const announcements = await Announcement.find({
       location: req.tenant.location,
       isActive: true
     }).sort({ createdAt: -1 });
     
+    console.log(`[TENANT API] Found ${announcements.length} announcements`);
+    
     res.json(announcements);
   } catch (error) {
+    console.error('[TENANT API] Error fetching announcements:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
@@ -94,6 +107,8 @@ router.get('/announcements', authenticateTenant, async (req, res) => {
 router.post('/complaints', authenticateTenant, async (req, res) => {
   try {
     const { subject, description, category } = req.body;
+    
+    console.log(`[TENANT API] Creating complaint for tenant: ${req.tenant.name}`);
     
     const complaint = new Complaint({
       tenantId: req.tenant._id,
@@ -106,8 +121,11 @@ router.post('/complaints', authenticateTenant, async (req, res) => {
     });
     
     await complaint.save();
+    console.log(`[TENANT API] Complaint created successfully`);
+    
     res.status(201).json({ message: 'Complaint submitted successfully', complaint });
   } catch (error) {
+    console.error('[TENANT API] Error creating complaint:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
@@ -115,12 +133,17 @@ router.post('/complaints', authenticateTenant, async (req, res) => {
 // Get tenant's complaints
 router.get('/complaints', authenticateTenant, async (req, res) => {
   try {
+    console.log(`[TENANT API] Fetching complaints for tenant: ${req.tenant.name}`);
+    
     const complaints = await Complaint.find({
       tenantId: req.tenant._id
     }).sort({ createdAt: -1 });
     
+    console.log(`[TENANT API] Found ${complaints.length} complaints`);
+    
     res.json(complaints);
   } catch (error) {
+    console.error('[TENANT API] Error fetching complaints:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
@@ -129,6 +152,8 @@ router.get('/complaints', authenticateTenant, async (req, res) => {
 router.post('/payments', authenticateTenant, async (req, res) => {
   try {
     const { amount, paymentMethod, transactionId, paymentMonth, paymentYear } = req.body;
+    
+    console.log(`[TENANT API] Creating payment for tenant: ${req.tenant.name}`);
     
     const payment = new Payment({
       tenantId: req.tenant._id,
@@ -148,8 +173,11 @@ router.post('/payments', authenticateTenant, async (req, res) => {
     req.tenant.lastPaymentDate = new Date();
     await req.tenant.save();
     
+    console.log(`[TENANT API] Payment created successfully`);
+    
     res.status(201).json({ message: 'Payment recorded successfully', payment });
   } catch (error) {
+    console.error('[TENANT API] Error creating payment:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
@@ -157,12 +185,17 @@ router.post('/payments', authenticateTenant, async (req, res) => {
 // Get tenant's payment history
 router.get('/payments', authenticateTenant, async (req, res) => {
   try {
+    console.log(`[TENANT API] Fetching payments for tenant: ${req.tenant.name}`);
+    
     const payments = await Payment.find({
       tenantId: req.tenant._id
     }).sort({ paymentDate: -1 });
     
+    console.log(`[TENANT API] Found ${payments.length} payments`);
+    
     res.json(payments);
   } catch (error) {
+    console.error('[TENANT API] Error fetching payments:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
@@ -171,6 +204,8 @@ router.get('/payments', authenticateTenant, async (req, res) => {
 router.post('/leave-requests', authenticateTenant, async (req, res) => {
   try {
     const { leaveDate, reason } = req.body;
+    
+    console.log(`[TENANT API] Creating leave request for tenant: ${req.tenant.name}`);
     
     const leaveRequest = new LeaveRequest({
       tenantId: req.tenant._id,
@@ -182,8 +217,11 @@ router.post('/leave-requests', authenticateTenant, async (req, res) => {
     });
     
     await leaveRequest.save();
+    console.log(`[TENANT API] Leave request created successfully`);
+    
     res.status(201).json({ message: 'Leave request submitted successfully', leaveRequest });
   } catch (error) {
+    console.error('[TENANT API] Error creating leave request:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
@@ -191,12 +229,17 @@ router.post('/leave-requests', authenticateTenant, async (req, res) => {
 // Get tenant's leave requests
 router.get('/leave-requests', authenticateTenant, async (req, res) => {
   try {
+    console.log(`[TENANT API] Fetching leave requests for tenant: ${req.tenant.name}`);
+    
     const leaveRequests = await LeaveRequest.find({
       tenantId: req.tenant._id
     }).sort({ createdAt: -1 });
     
+    console.log(`[TENANT API] Found ${leaveRequests.length} leave requests`);
+    
     res.json(leaveRequests);
   } catch (error) {
+    console.error('[TENANT API] Error fetching leave requests:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
@@ -204,12 +247,20 @@ router.get('/leave-requests', authenticateTenant, async (req, res) => {
 // Get food menu for tenant's location
 router.get('/menu', authenticateTenant, async (req, res) => {
   try {
+    // Use location from query params if provided, otherwise use tenant's location
+    const location = req.query.location || req.tenant.location;
+    
+    console.log(`[TENANT API] Fetching menu for location: ${location}`);
+    
     const menu = await Menu.find({
-      location: req.tenant.location
+      location: location
     }).sort({ day: 1 });
+    
+    console.log(`[TENANT API] Found ${menu.length} menu items`);
     
     res.json(menu);
   } catch (error) {
+    console.error('[TENANT API] Error fetching menu:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });

@@ -2458,37 +2458,25 @@ const Home = () => {
           flexWrap: 'wrap'
         }}>
           <button
-            onClick={() => navigate('/tenant/rooms')}
-            style={{
-              background: 'white',
-              color: '#22c55e',
-              padding: '1.3rem 3.5rem',
-              fontSize: '1.1rem',
-              fontWeight: 700,
-              borderRadius: '50px',
-              border: 'none',
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.75rem',
-              boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
-              transition: 'all 0.3s',
-              textTransform: 'uppercase',
-              letterSpacing: '1px'
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.transform = 'translateY(-4px) scale(1.05)';
-              e.currentTarget.style.boxShadow = '0 15px 40px rgba(0,0,0,0.3)';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.transform = 'translateY(0) scale(1)';
-              e.currentTarget.style.boxShadow = '0 10px 30px rgba(0,0,0,0.2)';
-            }}
-          >
-            <Sparkles size={22} />
-            Book Now
-            <ArrowRight size={22} />
-          </button>
+              onClick={() => navigate('/pages/Booking')}
+              style={{
+                background: '#eef5f1',
+                color: 'green',
+                border: 'none',
+                borderRadius: '50px',
+                padding: '1.5rem 4.5rem',
+                fontSize: '1.4rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                transition: 'all 0.3s',
+                boxShadow: '0 8px 24px rgba(34, 197, 94, 0.4)',
+                textTransform: 'uppercase',
+                letterSpacing: '2px'
+              }}
+              
+            >
+              Book Now
+            </button>
 
           <div style={{
             display: 'flex',

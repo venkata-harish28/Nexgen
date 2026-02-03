@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { tenantAPI } from '../services/api';
-import { Key, LogIn, ArrowLeft, AlertCircle, Sparkles } from 'lucide-react';
+import { Key, LogIn, ArrowLeft, AlertCircle, Sparkles, ShieldCheck } from 'lucide-react';
 
 const TenantLogin = () => {
   const [passkey, setPasskey] = useState('');
+  const [role, setRole] = useState('tenant'); // 'tenant' or 'owner'
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -15,35 +16,65 @@ const TenantLogin = () => {
     setError('');
 
     try {
-      // ✅ OWNER LOGIN - Check FIRST and set required tokens
-      if (passkey === '7989578208' || passkey === '799595964') {
-        // Store mock owner data to prevent redirect
-        const mockOwnerData = {
-          id: 'owner-quick-access',
-          name: 'Owner',
-          email: 'owner@hostel.com',
-          username: 'owner'
-        };
-        
-        localStorage.setItem('role', 'owner');
-        localStorage.setItem('ownerToken', 'mock-token-' + passkey); // Add token
-        localStorage.setItem('ownerData', JSON.stringify(mockOwnerData)); // Add owner data
-        
-        navigate('/owner-dashboard');
-        setLoading(false);
-        return;
+      if (role === 'owner') {
+        // ✅ OWNER LOGIN - Check phone number
+        if (passkey === '7989578208' || passkey === '7995959645') {
+          console.log('[OWNER LOGIN] Valid phone number, creating session');
+          
+          // Store mock owner data to prevent redirect
+          const mockOwnerData = {
+            id: 'owner-quick-access',
+            name: 'Owner',
+            email: 'owner@hostel.com',
+            username: 'owner'
+          };
+          
+          // Clear any existing data first
+          localStorage.removeItem('tenantPasskey');
+          localStorage.removeItem('tenantData');
+          
+          // Set owner data
+          localStorage.setItem('role', 'owner');
+          localStorage.setItem('ownerToken', 'mock-token-' + passkey);
+          localStorage.setItem('ownerData', JSON.stringify(mockOwnerData));
+          
+          console.log('[OWNER LOGIN] Session created, redirecting to dashboard');
+          console.log('[OWNER LOGIN] Token:', localStorage.getItem('ownerToken'));
+          console.log('[OWNER LOGIN] Data:', localStorage.getItem('ownerData'));
+          
+          // Use replace to prevent back button issues
+          navigate('/owner-dashboard', { replace: true });
+          setLoading(false);
+          return;
+        } else {
+          setError('Invalid owner phone number. Please use the correct number.');
+          setLoading(false);
+          return;
+        }
       }
 
-      // ✅ TENANT LOGIN - Only called if not owner phone number
+      // ✅ TENANT LOGIN
+      console.log('[TENANT LOGIN] Attempting login with passkey');
       const response = await tenantAPI.login(passkey);
+      
       if (response.data.success) {
+        console.log('[TENANT LOGIN] Success, creating session');
+        
+        // Clear any existing owner data
+        localStorage.removeItem('ownerToken');
+        localStorage.removeItem('ownerData');
+        
+        // Set tenant data
         localStorage.setItem('role', 'tenant');
         localStorage.setItem('tenantPasskey', passkey);
         localStorage.setItem('tenantData', JSON.stringify(response.data.tenant));
-        navigate('/tenant-dashboard');
+        
+        console.log('[TENANT LOGIN] Session created, redirecting to dashboard');
+        navigate('/tenant-dashboard', { replace: true });
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid passkey. Please try again.');
+      console.error('[LOGIN ERROR]:', err);
+      setError(err.response?.data?.message || 'Invalid credentials. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -55,10 +86,13 @@ const TenantLogin = () => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+      background: role === 'owner' 
+        ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+        : 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
       padding: '2rem',
       position: 'relative',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      transition: 'background 0.5s ease'
     }}>
       {/* Animated Background Elements */}
       <div style={{
@@ -114,39 +148,120 @@ const TenantLogin = () => {
           Back to Home
         </button>
 
+        {/* Role Selector */}
+        <div style={{ 
+          display: 'flex',
+          gap: '1rem',
+          marginBottom: '2rem',
+          padding: '0.5rem',
+          background: '#f8f9fa',
+          borderRadius: '12px'
+        }}>
+          <button
+            type="button"
+            onClick={() => {
+              setRole('tenant');
+              setPasskey('');
+              setError('');
+            }}
+            style={{
+              flex: 1,
+              padding: '0.75rem',
+              borderRadius: '8px',
+              border: 'none',
+              background: role === 'tenant' 
+                ? 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
+                : 'transparent',
+              color: role === 'tenant' ? 'white' : '#6c757d',
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'all 0.3s',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem'
+            }}
+          >
+            <Key size={18} />
+            Tenant
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setRole('owner');
+              setPasskey('');
+              setError('');
+            }}
+            style={{
+              flex: 1,
+              padding: '0.75rem',
+              borderRadius: '8px',
+              border: 'none',
+              background: role === 'owner' 
+                ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                : 'transparent',
+              color: role === 'owner' ? 'white' : '#6c757d',
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'all 0.3s',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem'
+            }}
+          >
+            <ShieldCheck size={18} />
+            Owner
+          </button>
+        </div>
+
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
           <div style={{ 
             width: '80px',
             height: '80px',
-            background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+            background: role === 'owner'
+              ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+              : 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
             borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             margin: '0 auto 1.5rem',
             color: 'white',
-            boxShadow: '0 8px 24px rgba(79, 172, 254, 0.4)',
-            position: 'relative'
+            boxShadow: role === 'owner'
+              ? '0 8px 24px rgba(102, 126, 234, 0.4)'
+              : '0 8px 24px rgba(79, 172, 254, 0.4)',
+            position: 'relative',
+            transition: 'all 0.5s ease'
           }}>
-            <Key size={36} />
-            <div style={{
-              position: 'absolute',
-              top: '-5px',
-              right: '-5px',
-              width: '24px',
-              height: '24px',
-              background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              border: '3px solid white'
-            }}>
-              <Sparkles size={12} />
-            </div>
+            {role === 'owner' ? <ShieldCheck size={36} /> : <Key size={36} />}
+            {role === 'tenant' && (
+              <div style={{
+                position: 'absolute',
+                top: '-5px',
+                right: '-5px',
+                width: '24px',
+                height: '24px',
+                background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                border: '3px solid white'
+              }}>
+                <Sparkles size={12} />
+              </div>
+            )}
           </div>
-          <h2 style={{ marginBottom: '0.5rem', fontSize: '2rem', fontWeight: 700 }}>Tenant Portal</h2>
-          <p style={{ color: '#6c757d', fontSize: '0.95rem' }}>Enter your passkey to access your account</p>
+          <h2 style={{ marginBottom: '0.5rem', fontSize: '2rem', fontWeight: 700 }}>
+            {role === 'owner' ? 'Owner Portal' : 'Tenant Portal'}
+          </h2>
+          <p style={{ color: '#6c757d', fontSize: '0.95rem' }}>
+            {role === 'owner' 
+              ? 'Enter your phone number to access dashboard'
+              : 'Enter your passkey to access your account'
+            }
+          </p>
         </div>
 
         {error && (
@@ -177,14 +292,14 @@ const TenantLogin = () => {
               fontSize: '0.9rem',
               color: '#1a1a1a'
             }}>
-              <Key size={16} />
-              Passkey
+              {role === 'owner' ? <ShieldCheck size={16} /> : <Key size={16} />}
+              {role === 'owner' ? 'Phone Number' : 'Passkey'}
             </label>
             <input
               type="text"
               value={passkey}
-              onChange={(e) => setPasskey(e.target.value.toUpperCase())}
-              placeholder="HST-XXXXXXXX"
+              onChange={(e) => setPasskey(role === 'tenant' ? e.target.value.toUpperCase() : e.target.value)}
+              placeholder={role === 'owner' ? '7989578208 or 7995959645' : 'HST-XXXXXXXX'}
               required
               style={{
                 width: '100%',
@@ -192,15 +307,15 @@ const TenantLogin = () => {
                 borderRadius: '12px',
                 border: '2px solid #e1e8ed',
                 fontSize: '1rem',
-                fontFamily: 'monospace',
+                fontFamily: role === 'tenant' ? 'monospace' : 'inherit',
                 fontWeight: 600,
-                letterSpacing: '1px',
+                letterSpacing: role === 'tenant' ? '1px' : 'normal',
                 transition: 'all 0.3s',
                 outline: 'none',
                 textAlign: 'center'
               }}
               onFocus={(e) => {
-                e.target.style.borderColor = '#4facfe';
+                e.target.style.borderColor = role === 'owner' ? '#667eea' : '#4facfe';
                 e.target.style.background = '#f8f9fa';
               }}
               onBlur={(e) => {
@@ -215,7 +330,10 @@ const TenantLogin = () => {
               display: 'block',
               textAlign: 'center'
             }}>
-              Your unique passkey provided by hostel administration
+              {role === 'owner' 
+                ? 'Use your registered phone number'
+                : 'Your unique passkey provided by hostel administration'
+              }
             </small>
           </div>
 
@@ -227,7 +345,9 @@ const TenantLogin = () => {
               padding: '1rem',
               fontSize: '1rem',
               fontWeight: 600,
-              background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+              background: role === 'owner'
+                ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                : 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
               color: 'white',
               border: 'none',
               borderRadius: '12px',
@@ -237,18 +357,24 @@ const TenantLogin = () => {
               justifyContent: 'center',
               gap: '0.5rem',
               transition: 'transform 0.2s, box-shadow 0.2s',
-              boxShadow: '0 4px 16px rgba(79, 172, 254, 0.4)',
+              boxShadow: role === 'owner'
+                ? '0 4px 16px rgba(102, 126, 234, 0.4)'
+                : '0 4px 16px rgba(79, 172, 254, 0.4)',
               opacity: loading ? 0.7 : 1
             }}
             onMouseOver={(e) => {
               if (!loading) {
                 e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 6px 24px rgba(79, 172, 254, 0.5)';
+                e.currentTarget.style.boxShadow = role === 'owner'
+                  ? '0 6px 24px rgba(102, 126, 234, 0.5)'
+                  : '0 6px 24px rgba(79, 172, 254, 0.5)';
               }
             }}
             onMouseOut={(e) => {
               e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 4px 16px rgba(79, 172, 254, 0.4)';
+              e.currentTarget.style.boxShadow = role === 'owner'
+                ? '0 4px 16px rgba(102, 126, 234, 0.4)'
+                : '0 4px 16px rgba(79, 172, 254, 0.4)';
             }}
           >
             <LogIn size={20} />
@@ -262,20 +388,54 @@ const TenantLogin = () => {
           background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
           borderRadius: '12px'
         }}>
-          <p style={{ fontSize: '0.9rem', color: '#6c757d', marginBottom: '0.75rem', fontWeight: 600 }}>
-            Security Tips:
-          </p>
-          <ul style={{ 
-            fontSize: '0.85rem',
-            color: '#6c757d',
-            paddingLeft: '1.25rem',
-            margin: 0,
-            lineHeight: 1.8
-          }}>
-            <li>Your passkey is unique and confidential</li>
-            <li>Never share your passkey with anyone</li>
-            <li>Contact administration if passkey is lost</li>
-          </ul>
+          {role === 'owner' ? (
+            <>
+              <p style={{ fontSize: '0.9rem', color: '#6c757d', marginBottom: '0.75rem', fontWeight: 600 }}>
+                Owner Access:
+              </p>
+              <ul style={{ 
+                fontSize: '0.85rem',
+                color: '#6c757d',
+                paddingLeft: '1.25rem',
+                margin: 0,
+                lineHeight: 1.8
+              }}>
+                <li>Use registered phone number to login</li>
+                <li>Access full dashboard and management tools</li>
+                <li>Or use regular <button
+                  onClick={() => navigate('/owner-login')}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#667eea',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                    padding: 0
+                  }}
+                >
+                  username/password login
+                </button></li>
+              </ul>
+            </>
+          ) : (
+            <>
+              <p style={{ fontSize: '0.9rem', color: '#6c757d', marginBottom: '0.75rem', fontWeight: 600 }}>
+                Security Tips:
+              </p>
+              <ul style={{ 
+                fontSize: '0.85rem',
+                color: '#6c757d',
+                paddingLeft: '1.25rem',
+                margin: 0,
+                lineHeight: 1.8
+              }}>
+                <li>Your passkey is unique and confidential</li>
+                <li>Never share your passkey with anyone</li>
+                <li>Contact administration if passkey is lost</li>
+              </ul>
+            </>
+          )}
         </div>
       </div>
     </div>
