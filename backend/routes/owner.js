@@ -84,6 +84,48 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// Owner login with phone number (for quick access)
+router.post('/login-phone', async (req, res) => {
+  try {
+    const { phone } = req.body;
+    
+    // Hardcoded phone numbers for owner access
+    if (phone === '7989578208' || phone === '799595964') {
+      // You can fetch a default owner or create a mock owner object
+      const owner = await Owner.findOne({ username: 'admin' }); // or however you identify the main owner
+      
+      if (owner) {
+        res.json({
+          success: true,
+          owner: {
+            id: owner._id,
+            name: owner.name,
+            email: owner.email,
+            username: owner.username
+          },
+          token: generateToken(owner._id)
+        });
+      } else {
+        // If no owner found, return a mock owner for quick access
+        res.json({
+          success: true,
+          owner: {
+            id: 'owner-quick-access',
+            name: 'Owner',
+            email: 'owner@hostel.com',
+            username: 'owner'
+          },
+          token: generateToken('owner-quick-access')
+        });
+      }
+    } else {
+      res.status(401).json({ message: 'Invalid phone number' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 // Create announcement
 router.post('/announcements', authenticateOwner, async (req, res) => {
   try {

@@ -35,20 +35,30 @@ const Navbar = () => {
           justifyContent: 'space-between'
         }}
       >
-        {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        {/* 🔹 LOGO (Click → Home) */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            cursor: 'pointer'
+          }}
+          onClick={() => navigate('/')}
+          onMouseOver={(e) => (e.currentTarget.style.opacity = '0.85')}
+          onMouseOut={(e) => (e.currentTarget.style.opacity = '1')}
+        >
           <img
             src="/logo.png"
             alt="NextGen Logo"
             style={{
-              height: '50px',
+              height: '80px',
               width: 'auto',
               objectFit: 'contain'
             }}
           />
         </div>
 
-        {/* Navigation Links */}
+        {/* 🔹 NAV LINKS */}
         <div
           style={{
             display: 'flex',
@@ -60,16 +70,7 @@ const Navbar = () => {
         >
           <button
             onClick={() => navigate('/pages/about')}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#ffffff',
-              fontWeight: 500,
-              fontSize: '1rem',
-              cursor: 'pointer',
-              transition: 'color 0.3s',
-              textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
-            }}
+            style={navButtonStyle}
             onMouseOver={(e) => (e.currentTarget.style.color = '#22c55e')}
             onMouseOut={(e) => (e.currentTarget.style.color = '#ffffff')}
           >
@@ -78,16 +79,7 @@ const Navbar = () => {
 
           <button
             onClick={() => scrollToSection('rooms')}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#ffffff',
-              fontWeight: 500,
-              fontSize: '1rem',
-              cursor: 'pointer',
-              transition: 'color 0.3s',
-              textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
-            }}
+            style={navButtonStyle}
             onMouseOver={(e) => (e.currentTarget.style.color = '#22c55e')}
             onMouseOut={(e) => (e.currentTarget.style.color = '#ffffff')}
           >
@@ -96,35 +88,16 @@ const Navbar = () => {
 
           <button
             onClick={() => scrollToSection('locations')}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#ffffff',
-              fontWeight: 500,
-              fontSize: '1rem',
-              cursor: 'pointer',
-              transition: 'color 0.3s',
-              textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
-            }}
+            style={navButtonStyle}
             onMouseOver={(e) => (e.currentTarget.style.color = '#22c55e')}
             onMouseOut={(e) => (e.currentTarget.style.color = '#ffffff')}
           >
             Locations
           </button>
 
-          {/* ✅ FIXED CONTACT BUTTON */}
           <button
             onClick={() => navigate('/pages/contact')}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#ffffff',
-              fontWeight: 500,
-              fontSize: '1rem',
-              cursor: 'pointer',
-              transition: 'color 0.3s',
-              textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
-            }}
+            style={navButtonStyle}
             onMouseOver={(e) => (e.currentTarget.style.color = '#22c55e')}
             onMouseOut={(e) => (e.currentTarget.style.color = '#ffffff')}
           >
@@ -132,7 +105,7 @@ const Navbar = () => {
           </button>
         </div>
 
-        {/* Login Button */}
+        {/* 🔹 LOGIN BUTTON */}
         <button
           onClick={() => navigate('/tenant-login')}
           style={{
@@ -162,6 +135,18 @@ const Navbar = () => {
       </div>
     </nav>
   );
+};
+
+/* 🔹 Shared nav button style */
+const navButtonStyle = {
+  background: 'none',
+  border: 'none',
+  color: '#ffffff',
+  fontWeight: 500,
+  fontSize: '1rem',
+  cursor: 'pointer',
+  transition: 'color 0.3s',
+  textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
 };
 
 export default Navbar;

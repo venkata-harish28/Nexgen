@@ -15,14 +15,26 @@ const TenantLogin = () => {
     setError('');
 
     try {
-      // ✅ OWNER LOGIN (added)
-      if (passkey === '7989578208') {
+      // ✅ OWNER LOGIN - Check FIRST and set required tokens
+      if (passkey === '7989578208' || passkey === '799595964') {
+        // Store mock owner data to prevent redirect
+        const mockOwnerData = {
+          id: 'owner-quick-access',
+          name: 'Owner',
+          email: 'owner@hostel.com',
+          username: 'owner'
+        };
+        
         localStorage.setItem('role', 'owner');
+        localStorage.setItem('ownerToken', 'mock-token-' + passkey); // Add token
+        localStorage.setItem('ownerData', JSON.stringify(mockOwnerData)); // Add owner data
+        
         navigate('/owner-dashboard');
+        setLoading(false);
         return;
       }
 
-      // ✅ TENANT LOGIN (existing logic)
+      // ✅ TENANT LOGIN - Only called if not owner phone number
       const response = await tenantAPI.login(passkey);
       if (response.data.success) {
         localStorage.setItem('role', 'tenant');

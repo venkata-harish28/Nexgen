@@ -6,6 +6,18 @@ const TenantRooms = ({ data }) => {
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [showPhotoModal, setShowPhotoModal] = useState(false);
 
+  // Get room photo based on capacity
+  const getRoomPhoto = (capacity) => {
+    const photoMap = {
+      1: '/1share.png',
+      2: '/2share.png',
+      3: '/3share.jpeg',
+      4: '/4share.png',
+      5: '/5share.png'
+    };
+    return photoMap[capacity] || '/4share.png'; // Default fallback
+  };
+
   return (
     <div>
       <div className="mb-6 flex items-center gap-3">
@@ -29,87 +41,151 @@ const TenantRooms = ({ data }) => {
           {data.map(room => {
             const availableBeds = room.capacity - room.currentOccupancy;
             const occupancyPercentage = (room.currentOccupancy / room.capacity) * 100;
+            const roomPhoto = getRoomPhoto(room.capacity);
             
             return (
               <div 
                 key={room._id} 
-                className="bg-white rounded-xl shadow-sm p-6 hover:shadow-lg transition-all duration-200 border border-gray-100"
+                className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-200 border border-gray-100 overflow-hidden"
               >
-                {/* Room Header */}
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h4 className="text-xl font-bold text-gray-900">Room {room.roomNumber}</h4>
-                    <p className="text-sm text-gray-500">Floor {room.floor}</p>
+                {/* Room Image */}
+                <div style={{
+                  height: '200px',
+                  overflow: 'hidden',
+                  position: 'relative'
+                }}>
+                  <img
+                    src={roomPhoto}
+                    alt={`${room.capacity} Share Room`}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      transition: 'transform 0.3s'
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.transform = 'scale(1.05)';
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.transform = 'scale(1)';
+                    }}
+                  />
+                  {/* Gradient Overlay */}
+                  <div style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    height: '50%',
+                    background: 'linear-gradient(to top, rgba(0,0,0,0.6), transparent)'
+                  }} />
+                  {/* Capacity Badge */}
+                  <div style={{
+                    position: 'absolute',
+                    top: '1rem',
+                    right: '1rem',
+                    background: 'rgba(34, 197, 94, 0.95)',
+                    color: 'white',
+                    padding: '0.5rem 1rem',
+                    borderRadius: '20px',
+                    fontSize: '0.85rem',
+                    fontWeight: 700,
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+                  }}>
+                    {room.capacity} Share
                   </div>
-                  <span className="px-3 py-1.5 rounded-full text-xs font-semibold bg-green-100 text-green-800 border border-green-200">
+                  {/* Available Beds Badge */}
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '1rem',
+                    left: '1rem',
+                    background: 'rgba(255,255,255,0.95)',
+                    color: '#22c55e',
+                    padding: '0.5rem 1rem',
+                    borderRadius: '20px',
+                    fontSize: '0.85rem',
+                    fontWeight: 700,
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+                  }}>
                     {availableBeds} {availableBeds === 1 ? 'Bed' : 'Beds'} Available
-                  </span>
+                  </div>
                 </div>
-                
-                {/* Room Info Grid */}
-                <div className="space-y-3 mb-4">
-                  <div className="flex items-center gap-3 text-sm">
-                    <Users size={16} className="text-gray-400" />
-                    <span className="text-gray-600">Capacity:</span>
-                    <span className="font-semibold text-gray-900 ml-auto">{room.capacity} persons</span>
-                  </div>
-                  
-                  <div className="flex items-center gap-3 text-sm">
-                    <Layers size={16} className="text-gray-400" />
-                    <span className="text-gray-600">Occupancy:</span>
-                    <span className="font-semibold text-gray-900 ml-auto">{room.currentOccupancy}/{room.capacity}</span>
-                  </div>
 
-                  {/* Occupancy Progress Bar */}
-                  <div className="pt-1">
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className={`h-2 rounded-full transition-all duration-300 ${
-                          occupancyPercentage < 50 
-                            ? 'bg-green-500' 
-                            : occupancyPercentage < 75 
-                            ? 'bg-yellow-500' 
-                            : 'bg-orange-500'
-                        }`}
-                        style={{ width: `${occupancyPercentage}%` }}
-                      />
+                {/* Room Content */}
+                <div className="p-6">
+                  {/* Room Header */}
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h4 className="text-xl font-bold text-gray-900">Room {room.roomNumber}</h4>
+                      <p className="text-sm text-gray-500">Floor {room.floor}</p>
                     </div>
                   </div>
                   
-                  {/* Rent Amount */}
-                  <div className="pt-3 border-t border-gray-200 flex items-center gap-2">
-                    <IndianRupee size={18} className="text-gray-700" />
-                    <span className="text-2xl font-bold text-gray-900">
-                      {room.rentAmount.toLocaleString('en-IN')}
-                    </span>
-                    <span className="text-sm text-gray-600">/month</span>
-                  </div>
-                </div>
-                
-                {/* Amenities */}
-                {room.amenities && room.amenities.length > 0 && (
-                  <div className="pt-4 border-t border-gray-200 mb-4">
-                    <p className="text-xs font-semibold text-gray-700 mb-2">Amenities:</p>
-                    <div className="flex flex-wrap gap-2">
-                      {room.amenities.map((amenity, index) => (
-                        <span 
-                          key={index} 
-                          className="text-xs px-3 py-1 bg-blue-50 text-blue-700 rounded-full border border-blue-200"
-                        >
-                          {amenity}
-                        </span>
-                      ))}
+                  {/* Room Info Grid */}
+                  <div className="space-y-3 mb-4">
+                    <div className="flex items-center gap-3 text-sm">
+                      <Users size={16} className="text-gray-400" />
+                      <span className="text-gray-600">Capacity:</span>
+                      <span className="font-semibold text-gray-900 ml-auto">{room.capacity} persons</span>
+                    </div>
+                    
+                    <div className="flex items-center gap-3 text-sm">
+                      <Layers size={16} className="text-gray-400" />
+                      <span className="text-gray-600">Occupancy:</span>
+                      <span className="font-semibold text-gray-900 ml-auto">{room.currentOccupancy}/{room.capacity}</span>
+                    </div>
+
+                    {/* Occupancy Progress Bar */}
+                    <div className="pt-1">
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className={`h-2 rounded-full transition-all duration-300 ${
+                            occupancyPercentage < 50 
+                              ? 'bg-green-500' 
+                              : occupancyPercentage < 75 
+                              ? 'bg-yellow-500' 
+                              : 'bg-orange-500'
+                          }`}
+                          style={{ width: `${occupancyPercentage}%` }}
+                        />
+                      </div>
+                    </div>
+                    
+                    {/* Rent Amount */}
+                    <div className="pt-3 border-t border-gray-200 flex items-center gap-2">
+                      <IndianRupee size={18} className="text-gray-700" />
+                      <span className="text-2xl font-bold text-gray-900">
+                        {room.rentAmount.toLocaleString('en-IN')}
+                      </span>
+                      <span className="text-sm text-gray-600">/month</span>
                     </div>
                   </div>
-                )}
+                  
+                  {/* Amenities */}
+                  {room.amenities && room.amenities.length > 0 && (
+                    <div className="pt-4 border-t border-gray-200 mb-4">
+                      <p className="text-xs font-semibold text-gray-700 mb-2">Amenities:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {room.amenities.map((amenity, index) => (
+                          <span 
+                            key={index} 
+                            className="text-xs px-3 py-1 bg-blue-50 text-blue-700 rounded-full border border-blue-200"
+                          >
+                            {amenity}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
-                {/* Action Button */}
-                <button
-                  onClick={() => setSelectedRoom(room)}
-                  className="w-full mt-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-medium shadow-sm hover:shadow-md"
-                >
-                  View Room Layout
-                </button>
+                  {/* Action Button */}
+                  <button
+                    onClick={() => setSelectedRoom(room)}
+                    className="w-full mt-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-medium shadow-sm hover:shadow-md"
+                  >
+                    View Room Layout
+                  </button>
+                </div>
               </div>
             );
           })}
@@ -121,6 +197,7 @@ const TenantRooms = ({ data }) => {
           room={selectedRoom}
           onClose={() => setSelectedRoom(null)}
           onViewPhoto={() => setShowPhotoModal(true)}
+          roomPhoto={getRoomPhoto(selectedRoom.capacity)}
         />
       )}
 
@@ -128,13 +205,14 @@ const TenantRooms = ({ data }) => {
         <RoomPhotoModal
           room={selectedRoom}
           onClose={() => setShowPhotoModal(false)}
+          roomPhoto={getRoomPhoto(selectedRoom.capacity)}
         />
       )}
     </div>
   );
 };
 
-const RoomLayoutModal = ({ room, onClose, onViewPhoto }) => {
+const RoomLayoutModal = ({ room, onClose, onViewPhoto, roomPhoto }) => {
   // Generate bed layout based on capacity
   const generateBedLayout = (capacity, currentOccupancy) => {
     const beds = [];
@@ -303,7 +381,7 @@ const RoomLayoutModal = ({ room, onClose, onViewPhoto }) => {
   );
 };
 
-const RoomPhotoModal = ({ room, onClose }) => {
+const RoomPhotoModal = ({ room, onClose, roomPhoto }) => {
   return (
     <div 
       className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-[60] backdrop-blur-sm"
@@ -324,35 +402,14 @@ const RoomPhotoModal = ({ room, onClose }) => {
         </div>
         
         <div className="p-6">
-          {room.photos && room.photos.length > 0 ? (
-            <div className="space-y-4">
-              <img 
-                src={room.photos[0]} 
-                alt={`Room ${room.roomNumber}`}
-                className="w-full h-auto rounded-lg shadow-lg"
-              />
-              {room.photos.length > 1 && (
-                <div className="grid grid-cols-3 gap-4">
-                  {room.photos.slice(1).map((photo, index) => (
-                    <img 
-                      key={index}
-                      src={photo} 
-                      alt={`Room ${room.roomNumber} - ${index + 2}`}
-                      className="w-full h-32 object-cover rounded-lg shadow-md"
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="bg-gradient-to-br from-gray-50 to-gray-100 h-96 flex items-center justify-center rounded-lg border-2 border-dashed border-gray-300">
-              <div className="text-center">
-                <Home size={64} className="mx-auto mb-4 text-gray-400" />
-                <p className="text-gray-600 text-lg font-medium">No photo available for this room</p>
-                <p className="text-gray-500 text-sm mt-2">Contact the hostel management for more details</p>
-              </div>
-            </div>
-          )}
+          <div className="space-y-4">
+            <img 
+              src={roomPhoto} 
+              alt={`Room ${room.roomNumber} - ${room.capacity} Share`}
+              className="w-full h-auto rounded-lg shadow-lg"
+              style={{ maxHeight: '500px', objectFit: 'cover' }}
+            />
+          </div>
           
           <div className="mt-6 bg-gray-50 rounded-lg p-4 border border-gray-200">
             <div className="grid grid-cols-2 gap-4 text-sm">
@@ -365,14 +422,30 @@ const RoomPhotoModal = ({ room, onClose }) => {
                 <p className="font-semibold text-gray-900">{room.floor}</p>
               </div>
               <div>
-                <p className="text-gray-600">Capacity:</p>
-                <p className="font-semibold text-gray-900">{room.capacity} persons</p>
+                <p className="text-gray-600">Sharing Type:</p>
+                <p className="font-semibold text-gray-900">{room.capacity} Share Room</p>
               </div>
               <div>
                 <p className="text-gray-600">Monthly Rent:</p>
                 <p className="font-semibold text-gray-900">₹{room.rentAmount.toLocaleString('en-IN')}</p>
               </div>
             </div>
+
+            {room.amenities && room.amenities.length > 0 && (
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <p className="text-gray-600 mb-2">Amenities:</p>
+                <div className="flex flex-wrap gap-2">
+                  {room.amenities.map((amenity, index) => (
+                    <span 
+                      key={index} 
+                      className="text-xs px-3 py-1 bg-blue-50 text-blue-700 rounded-full border border-blue-200"
+                    >
+                      {amenity}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
           
           <button

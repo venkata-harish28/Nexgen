@@ -10,6 +10,43 @@ import Menu from '../models/Menu.js';
 
 const router = express.Router();
 
+// PUBLIC ROUTE - Get vacant rooms by location (no authentication required)
+// This route must come BEFORE the authenticated routes to avoid conflicts
+router.get('/rooms/vacant', async (req, res) => {
+  try {
+    const { location } = req.query;
+    
+    if (!location) {
+      return res.status(400).json({ message: 'Location parameter is required' });
+    }
+    
+    // Find all rooms at the specified location
+    const rooms = await Room.find({
+      location: location
+    }).sort({ roomNumber: 1 });
+    
+    // Filter rooms that have available beds (currentOccupancy < capacity)
+    const availableRooms = rooms.filter(room => room.currentOccupancy < room.capacity);
+    
+    // Also update isVacant status for all rooms (data consistency)
+    for (const room of rooms) {
+      const shouldBeVacant = room.currentOccupancy < room.capacity;
+      if (room.isVacant !== shouldBeVacant) {
+        room.isVacant = shouldBeVacant;
+        await room.save();
+      }
+    }
+    
+    console.log(`Fetching vacant rooms for location: ${location}`);
+    console.log(`Found ${availableRooms.length} available rooms`);
+    
+    res.json(availableRooms);
+  } catch (error) {
+    console.error('Error fetching vacant rooms:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 // Tenant login with passkey
 router.post('/login', async (req, res) => {
   try {
@@ -84,33 +121,6 @@ router.get('/complaints', authenticateTenant, async (req, res) => {
     
     res.json(complaints);
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-});
-
-// Get vacant rooms at tenant's location - FIXED VERSION
-router.get('/rooms/vacant', authenticateTenant, async (req, res) => {
-  try {
-    // Find all rooms at the tenant's location
-    const rooms = await Room.find({
-      location: req.tenant.location
-    }).sort({ roomNumber: 1 });
-    
-    // Filter rooms that have available beds (currentOccupancy < capacity)
-    const availableRooms = rooms.filter(room => room.currentOccupancy < room.capacity);
-    
-    // Also update isVacant status for all rooms (data consistency)
-    for (const room of rooms) {
-      const shouldBeVacant = room.currentOccupancy < room.capacity;
-      if (room.isVacant !== shouldBeVacant) {
-        room.isVacant = shouldBeVacant;
-        await room.save();
-      }
-    }
-    
-    res.json(availableRooms);
-  } catch (error) {
-    console.error('Error fetching vacant rooms:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });

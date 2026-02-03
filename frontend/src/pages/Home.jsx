@@ -1580,7 +1580,7 @@ const Home = () => {
                 position: 'relative'
               }}>
                 <img
-                  src="/build.webp"
+                  src="/build7.png "
                   alt="Berlin"
                   style={{
                     width: '100%',
@@ -1637,7 +1637,7 @@ const Home = () => {
                 position: 'relative'
               }}>
                 <img
-                  src="/build.png"
+                  src="/build4.png"
                   alt="Rome"
                   style={{
                     width: '100%',
@@ -1694,7 +1694,7 @@ const Home = () => {
                 position: 'relative'
               }}>
                 <img
-                  src="/build1.png"
+                  src="/build6.png"
                   alt="New Zealand"
                   style={{
                     width: '100%',
@@ -1751,7 +1751,7 @@ const Home = () => {
                 position: 'relative'
               }}>
                 <img
-                  src="/build2.png"
+                  src="/build5.png"
                   alt="Dublin"
                   style={{
                     width: '100%',
@@ -2545,432 +2545,164 @@ const Home = () => {
     </div>
   </div>
 </div>
-{/* About Section */}
-<div id="about" style={{ padding: '6rem 2rem', background: 'white' }}>
-  <div className="container" style={{ maxWidth: '1200px', margin: '0 auto' }}>
-    <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-      <h2 style={{
-        fontSize: '3rem',
-        marginBottom: '1rem',
-        fontWeight: 800,
-        color: '#2d3748',
-        letterSpacing: '-1px'
-      }}>
-        About <span style={{ color: '#22c55e' }}>NextGen Hostels</span>
-      </h2>
-      <div style={{
-        width: '80px',
-        height: '4px',
-        background: 'linear-gradient(90deg, #22c55e, #16a34a)',
-        margin: '0 auto 2rem',
-        borderRadius: '2px'
-      }} />
-    </div>
 
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: '1fr 1fr',
-      gap: '4rem',
-      alignItems: 'center'
-    }}>
+      {/* Footer - Hyderabad Locations */}
+<div
+  style={{
+    background: '#1a1a1a',
+    color: 'white',
+    padding: '4rem 2rem 2rem'
+  }}
+>
+  <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+    {/* Top Section */}
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+        gap: '2.5rem',
+        marginBottom: '3rem',
+        paddingBottom: '3rem',
+        borderBottom: '1px solid rgba(255,255,255,0.1)'
+      }}
+    >
+      {/* Company Info */}
       <div>
-        <h3 style={{
-          fontSize: '2rem',
-          fontWeight: 700,
-          marginBottom: '1.5rem',
-          color: '#2d3748'
-        }}>
-          Your Home Away From Home
-        </h3>
-        <p style={{
-          fontSize: '1.1rem',
-          lineHeight: 1.8,
-          color: '#6c757d',
-          marginBottom: '1.5rem'
-        }}>
-          NextGen Hostels is redefining co-living in Hyderabad. We believe that your accommodation should be more than just four walls and a roof – it should be a community, a comfort zone, and a launching pad for your dreams.
-        </p>
-        <p style={{
-          fontSize: '1.1rem',
-          lineHeight: 1.8,
-          color: '#6c757d',
-          marginBottom: '1.5rem'
-        }}>
-          Founded with a vision to provide premium, affordable, and safe living spaces for students and working professionals, we've created an ecosystem where you can focus on what truly matters – your growth and success.
-        </p>
+        <img
+          src="/logo.png"
+          alt="NextGen Logo"
+          style={{
+            height: '80px',
+            width: 'auto',
+            objectFit: 'contain',
+            marginBottom: '1rem'
+          }}
+        />
 
-        <div style={{ marginTop: '2rem' }}>
-          <h4 style={{
-            fontSize: '1.3rem',
-            fontWeight: 700,
+        <p
+          style={{
+            color: 'rgba(255,255,255,0.7)',
+            lineHeight: 1.7,
+            fontSize: '0.9rem',
+            marginBottom: '1.5rem'
+          }}
+        >
+          Premium PG accommodations in Hyderabad. Your comfort is our priority.
+        </p>
+      </div>
+
+      {/* Locations */}
+      <div>
+        <h3
+          style={{
             marginBottom: '1rem',
-            color: '#2d3748'
-          }}>
-            Why Choose NextGen?
-          </h4>
-          <ul style={{
+            fontSize: '1rem',
+            fontWeight: 700,
+            color: '#22c55e'
+          }}
+        >
+          Our Locations
+        </h3>
+
+        <ul
+          style={{
             listStyle: 'none',
             padding: 0,
             margin: 0
-          }}>
-            {[
-              'Premium amenities at affordable prices',
-              'Safe and secure environment with 24/7 security',
-              'Strategic locations near IT hubs and educational institutions',
-              'Community-focused living with regular events',
-              'Professional housekeeping and maintenance',
-              'Flexible sharing options to suit your budget'
-            ].map((item, index) => (
-              <li key={index} style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '1rem',
-                marginBottom: '1rem',
-                fontSize: '1rem',
-                color: '#6c757d'
-              }}>
-                <div style={{
-                  width: '24px',
-                  height: '24px',
-                  borderRadius: '50%',
-                  background: '#22c55e',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0
-                }}>
-                  <span style={{ color: 'white', fontSize: '0.75rem' }}>✓</span>
-                </div>
-                {item}
+          }}
+        >
+          {[
+            'PGs in Gachibowli',
+            'PGs in Gowlidoddi',
+            'PGs in Pocharam',
+            'PGs in Madhapur'
+          ].map((location, index) => (
+            <li key={index} style={{ marginBottom: '0.6rem' }}>
+              <a
+                href="#"
+                style={{
+                  color: 'rgba(255,255,255,0.6)',
+                  textDecoration: 'none',
+                  fontSize: '0.9rem',
+                  transition: 'color 0.3s'
+                }}
+                onMouseOver={(e) =>
+                  (e.currentTarget.style.color = '#22c55e')
+                }
+                onMouseOut={(e) =>
+                  (e.currentTarget.style.color = 'rgba(255,255,255,0.6)')
+                }
+              >
+                {location}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Quick Links */}
+      <div>
+        <h3
+          style={{
+            marginBottom: '1rem',
+            fontSize: '1rem',
+            fontWeight: 700,
+            color: '#22c55e'
+          }}
+        >
+          Quick Links
+        </h3>
+
+        <ul
+          style={{
+            listStyle: 'none',
+            padding: 0,
+            margin: 0
+          }}
+        >
+          {['About Us', 'Contact Us', 'Privacy Policy', 'Terms & Conditions'].map(
+            (link, index) => (
+              <li key={index} style={{ marginBottom: '0.6rem' }}>
+                <a
+                  href="#"
+                  style={{
+                    color: 'rgba(255,255,255,0.6)',
+                    textDecoration: 'none',
+                    fontSize: '0.9rem',
+                    transition: 'color 0.3s'
+                  }}
+                  onMouseOver={(e) =>
+                    (e.currentTarget.style.color = '#22c55e')
+                  }
+                  onMouseOut={(e) =>
+                    (e.currentTarget.style.color = 'rgba(255,255,255,0.6)')
+                  }
+                >
+                  {link}
+                </a>
               </li>
-            ))}
-          </ul>
-        </div>
+            )
+          )}
+        </ul>
       </div>
+    </div>
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        gap: '1.5rem'
-      }}>
-        <div style={{
-          background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
-          padding: '2.5rem 2rem',
-          borderRadius: '20px',
-          color: 'white',
-          textAlign: 'center',
-          boxShadow: '0 10px 30px rgba(34, 197, 94, 0.3)'
-        }}>
-          <div style={{
-            fontSize: '3.5rem',
-            fontWeight: 800,
-            marginBottom: '0.5rem'
-          }}>
-            500+
-          </div>
-          <div style={{ fontSize: '1.1rem', opacity: 0.95 }}>Happy Residents</div>
-        </div>
-
-        <div style={{
-          background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-          padding: '2.5rem 2rem',
-          borderRadius: '20px',
-          color: 'white',
-          textAlign: 'center',
-          boxShadow: '0 10px 30px rgba(59, 130, 246, 0.3)'
-        }}>
-          <div style={{
-            fontSize: '3.5rem',
-            fontWeight: 800,
-            marginBottom: '0.5rem'
-          }}>
-            10+
-          </div>
-          <div style={{ fontSize: '1.1rem', opacity: 0.95 }}>Premium Locations</div>
-        </div>
-
-        <div style={{
-          background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-          padding: '2.5rem 2rem',
-          borderRadius: '20px',
-          color: 'white',
-          textAlign: 'center',
-          boxShadow: '0 10px 30px rgba(245, 158, 11, 0.3)'
-        }}>
-          <div style={{
-            fontSize: '3.5rem',
-            fontWeight: 800,
-            marginBottom: '0.5rem'
-          }}>
-            4.8
-          </div>
-          <div style={{ fontSize: '1.1rem', opacity: 0.95 }}>Average Rating</div>
-        </div>
-
-        <div style={{
-          background: 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)',
-          padding: '2.5rem 2rem',
-          borderRadius: '20px',
-          color: 'white',
-          textAlign: 'center',
-          boxShadow: '0 10px 30px rgba(236, 72, 153, 0.3)'
-        }}>
-          <div style={{
-            fontSize: '3.5rem',
-            fontWeight: 800,
-            marginBottom: '0.5rem'
-          }}>
-            24/7
-          </div>
-          <div style={{ fontSize: '1.1rem', opacity: 0.95 }}>Support Available</div>
-        </div>
-      </div>
+    {/* Bottom Section */}
+    <div
+      style={{
+        textAlign: 'center',
+        color: 'rgba(255,255,255,0.5)',
+        fontSize: '0.9rem'
+      }}
+    >
+      <p style={{ margin: 0 }}>
+        © 2025 NextGen Hostels. All rights reserved. | PGs in Gachibowli,
+        Gowlidoddi, Pocharam & Madhapur
+      </p>
     </div>
   </div>
 </div>
 
-      {/* Footer - Hyderabad Locations */}
-      <div style={{
-        background: '#1a1a1a',
-        color: 'white',
-        padding: '4rem 2rem 2rem'
-      }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
-          {/* Top Section with Location Columns */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '2rem',
-            marginBottom: '3rem',
-            paddingBottom: '3rem',
-            borderBottom: '1px solid rgba(255,255,255,0.1)'
-          }}>
-            {/* Company Info */}
-            <div>
-              <img
-                src="/logo.png"
-                alt="NextGen Logo"
-                style={{
-                  height: '80px',          // 🔥 BIGGER LOGO
-                  width: 'auto',
-                  objectFit: 'contain',
-                  display: 'block'
-                }}
-              />
-
-              <p style={{
-                color: 'rgba(255,255,255,0.7)',
-                lineHeight: 1.7,
-                fontSize: '0.9rem',
-                marginBottom: '1.5rem'
-              }}>
-                Premium PG accommodations in Hyderabad. Your comfort is our priority.
-              </p>
-              <div style={{ display: 'flex', gap: '1rem' }}>
-                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '50%',
-                  background: 'rgba(255,255,255,0.1)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  textDecoration: 'none',
-                  transition: 'all 0.3s'
-                }}
-                  onMouseOver={(e) => {
-                    e.currentTarget.style.background = '#22c55e';
-                    e.currentTarget.style.transform = 'translateY(-3px)';
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
-                    e.currentTarget.style.transform = 'translateY(0)';
-                  }}
-                >
-                  <Instagram size={20} />
-                </a>
-              </div>
-            </div>
-
-            {/* Column 1 - PG Locations */}
-            <div>
-              <h3 style={{
-                marginBottom: '1rem',
-                fontSize: '1rem',
-                fontWeight: 700,
-                color: '#22c55e'
-              }}>
-                Popular Locations
-              </h3>
-              <ul style={{
-                listStyle: 'none',
-                padding: 0,
-                margin: 0
-              }}>
-                {['PGs in Gachibowli', 'PGs in Hitech City', 'PGs in Madhapur', 'PGs in Kondapur', 'PGs in Kukatpally', 'PGs in Miyapur', 'PGs in Ameerpet', 'PGs in Begumpet'].map((location, index) => (
-                  <li key={index} style={{ marginBottom: '0.5rem' }}>
-                    <a href="#" style={{
-                      color: 'rgba(255,255,255,0.6)',
-                      textDecoration: 'none',
-                      fontSize: '0.85rem',
-                      transition: 'color 0.3s'
-                    }}
-                      onMouseOver={(e) => e.currentTarget.style.color = '#22c55e'}
-                      onMouseOut={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.6)'}
-                    >
-                      {location}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Column 2 - More Locations */}
-            <div>
-              <h3 style={{
-                marginBottom: '1rem',
-                fontSize: '1rem',
-                fontWeight: 700,
-                color: '#22c55e'
-              }}>
-                More Locations
-              </h3>
-              <ul style={{
-                listStyle: 'none',
-                padding: 0,
-                margin: 0
-              }}>
-                {['PGs in Secunderabad', 'PGs in Banjara Hills', 'PGs in Jubilee Hills', 'PGs in Somajiguda', 'PGs in Punjagutta', 'PGs in SR Nagar', 'PGs in Nizampet', 'PGs in KPHB'].map((location, index) => (
-                  <li key={index} style={{ marginBottom: '0.5rem' }}>
-                    <a href="#" style={{
-                      color: 'rgba(255,255,255,0.6)',
-                      textDecoration: 'none',
-                      fontSize: '0.85rem',
-                      transition: 'color 0.3s'
-                    }}
-                      onMouseOver={(e) => e.currentTarget.style.color = '#22c55e'}
-                      onMouseOut={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.6)'}
-                    >
-                      {location}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Column 3 - Tech Parks & Districts */}
-            <div>
-              <h3 style={{
-                marginBottom: '1rem',
-                fontSize: '1rem',
-                fontWeight: 700,
-                color: '#22c55e'
-              }}>
-                Tech Parks & Districts
-              </h3>
-              <ul style={{
-                listStyle: 'none',
-                padding: 0,
-                margin: 0
-              }}>
-                {['PGs in Manikonda', 'PGs in Financial District', 'PGs in Nanakramguda', 'PGs in Kokapet', 'PGs in Lingampally', 'PGs in Chandanagar', 'PGs in Hafeezpet', 'PGs in Gopanpally'].map((location, index) => (
-                  <li key={index} style={{ marginBottom: '0.5rem' }}>
-                    <a href="#" style={{
-                      color: 'rgba(255,255,255,0.6)',
-                      textDecoration: 'none',
-                      fontSize: '0.85rem',
-                      transition: 'color 0.3s'
-                    }}
-                      onMouseOver={(e) => e.currentTarget.style.color = '#22c55e'}
-                      onMouseOut={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.6)'}
-                    >
-                      {location}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Column 4 - Additional Areas */}
-            <div>
-              <h3 style={{
-                marginBottom: '1rem',
-                fontSize: '1rem',
-                fontWeight: 700,
-                color: '#22c55e'
-              }}>
-                Additional Areas
-              </h3>
-              <ul style={{
-                listStyle: 'none',
-                padding: 0,
-                margin: 0
-              }}>
-                {['PGs in Raidurg', 'PGs in Attapur', 'PGs in Tolichowki', 'PGs in Mehdipatnam', 'PGs in Masab Tank', 'PGs in Lakdikapul', 'Flats in Hyderabad', 'Flats in Gachibowli'].map((location, index) => (
-                  <li key={index} style={{ marginBottom: '0.5rem' }}>
-                    <a href="#" style={{
-                      color: 'rgba(255,255,255,0.6)',
-                      textDecoration: 'none',
-                      fontSize: '0.85rem',
-                      transition: 'color 0.3s'
-                    }}
-                      onMouseOver={(e) => e.currentTarget.style.color = '#22c55e'}
-                      onMouseOut={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.6)'}
-                    >
-                      {location}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Column 5 - Quick Links */}
-            <div>
-              <h3 style={{
-                marginBottom: '1rem',
-                fontSize: '1rem',
-                fontWeight: 700,
-                color: '#22c55e'
-              }}>
-                Quick Links
-              </h3>
-              <ul style={{
-                listStyle: 'none',
-                padding: 0,
-                margin: 0
-              }}>
-                {['Flats in Hitech City', 'Flats in Madhapur', 'Flats in Kondapur', 'Flats in Financial District', 'About Us', 'Contact Us', 'Privacy Policy', 'Terms & Conditions'].map((link, index) => (
-                  <li key={index} style={{ marginBottom: '0.5rem' }}>
-                    <a href="#" style={{
-                      color: 'rgba(255,255,255,0.6)',
-                      textDecoration: 'none',
-                      fontSize: '0.85rem',
-                      transition: 'color 0.3s'
-                    }}
-                      onMouseOver={(e) => e.currentTarget.style.color = '#22c55e'}
-                      onMouseOut={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.6)'}
-                    >
-                      {link}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          {/* Bottom Copyright Section */}
-          <div style={{
-            textAlign: 'center',
-            color: 'rgba(255,255,255,0.5)',
-            fontSize: '0.9rem'
-          }}>
-            <p style={{ margin: 0 }}>
-              © 2025 NextGen Hostels. All rights reserved. | Premium PG Accommodations in Hyderabad
-            </p>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
