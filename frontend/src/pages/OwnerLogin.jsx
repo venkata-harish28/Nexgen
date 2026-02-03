@@ -1,4 +1,4 @@
-/*import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ownerAPI } from '../services/api';
 import { ShieldCheck, LogIn, ArrowLeft, Lock, User } from 'lucide-react';
@@ -41,9 +41,9 @@ const OwnerLogin = () => {
       padding: '2rem',
       position: 'relative',
       overflow: 'hidden'
-    }}>*/
+    }}>
       {/* Animated Background Elements */}
-     /* <div style={{
+      <div style={{
         position: 'absolute',
         top: '-20%',
         right: '-10%',
@@ -262,4 +262,4 @@ const OwnerLogin = () => {
   );
 };
 
-export default OwnerLogin;*/
+export default OwnerLogin;
