@@ -89,39 +89,48 @@ router.post('/login-phone', async (req, res) => {
   try {
     const { phone } = req.body;
     
+    console.log('[PHONE LOGIN] Attempt with phone:', phone);
+    
     // Hardcoded phone numbers for owner access
-    if (phone === '7989578208' || phone === '799595964') {
-      // You can fetch a default owner or create a mock owner object
-      const owner = await Owner.findOne({ username: 'admin' }); // or however you identify the main owner
+    if (phone === '7989578208' || phone === '7995959645') {
+      // Try to find an existing owner, or use the first owner in the database
+      let owner = await Owner.findOne({ username: 'admin' });
       
-      if (owner) {
-        res.json({
-          success: true,
-          owner: {
-            id: owner._id,
-            name: owner.name,
-            email: owner.email,
-            username: owner.username
-          },
-          token: generateToken(owner._id)
-        });
-      } else {
-        // If no owner found, return a mock owner for quick access
-        res.json({
-          success: true,
-          owner: {
-            id: 'owner-quick-access',
-            name: 'Owner',
-            email: 'owner@hostel.com',
-            username: 'owner'
-          },
-          token: generateToken('owner-quick-access')
-        });
+      // If no admin user, try to find any owner
+      if (!owner) {
+        owner = await Owner.findOne();
       }
+      
+      // If still no owner found, create a default owner for phone login
+      if (!owner) {
+        console.log('[PHONE LOGIN] No owner found, creating default owner');
+        owner = new Owner({
+          username: 'phone-owner',
+          email: 'phoneowner@hostel.com',
+          name: 'Phone Owner',
+          password: 'temp-password-' + Date.now() // This will be hashed by the pre-save hook
+        });
+        await owner.save();
+      }
+      
+      console.log('[PHONE LOGIN] Success - Owner:', owner.name);
+      
+      res.json({
+        success: true,
+        owner: {
+          id: owner._id,
+          name: owner.name,
+          email: owner.email,
+          username: owner.username
+        },
+        token: generateToken(owner._id)
+      });
     } else {
+      console.log('[PHONE LOGIN] Failed - Invalid phone number');
       res.status(401).json({ message: 'Invalid phone number' });
     }
   } catch (error) {
+    console.error('[PHONE LOGIN] Error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });

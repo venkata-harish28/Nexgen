@@ -32,7 +32,7 @@ const OwnerDashboard = () => {
   const navigate = useNavigate();
 
   const token = localStorage.getItem('ownerToken');
-  const locations = ['all', 'Location A', 'Location B', 'Location C'];
+  const locations = ['all', 'Gachibowli', 'Gowlidobbi', 'Pocharam', 'Madhapur'];
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
   // Update page title and favicon

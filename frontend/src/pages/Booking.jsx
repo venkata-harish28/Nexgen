@@ -97,7 +97,7 @@ const fetchVacantRooms = async (location) => {
 };
 
 const Booking = () => {
-  const [selectedLocation, setSelectedLocation] = useState('Location A');
+  const [selectedLocation, setSelectedLocation] = useState('Gachibowli');
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -105,26 +105,32 @@ const Booking = () => {
   const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [usingMockData, setUsingMockData] = useState(false);
 
-  const locations = ['Location A', 'Location B', 'Location C'];
+  const locations = ['Gachibowli', 'Gowlidobbi', 'Pocharam', 'Madhapur'];
 
   // Owner contact details - You can make this dynamic based on location
   const ownerContacts = {
-    'Location A': {
+    'Gachibowli': {
       name: 'Rajesh Kumar',
       phone: '+91 98765 43210',
       email: 'rajesh@nextgenhostels.com',
       address: 'Gachibowli, Hyderabad'
     },
-    'Location B': {
+    'Gowlidobbi': {
       name: 'Priya Sharma',
       phone: '+91 98765 43211',
       email: 'priya@nextgenhostels.com',
       address: 'Hitech City, Hyderabad'
     },
-    'Location C': {
+    'Pocharam': {
       name: 'Amit Patel',
       phone: '+91 98765 43212',
       email: 'amit@nextgenhostels.com',
+      address: 'Pocharam, Hyderabad'
+    },
+    'Madhapur': {
+      name: 'Sneha Reddy',
+      phone: '+91 98765 43213',
+      email: 'sneha@nextgenhostels.com',
       address: 'Madhapur, Hyderabad'
     }
   };

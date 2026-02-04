@@ -6,7 +6,7 @@ const MenuTab = ({ data, token, selectedLocation, onUpdate }) => {
   const [editingDay, setEditingDay] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
-    location: selectedLocation === 'all' ? 'Location A' : selectedLocation,
+    location: selectedLocation === 'all' ? 'Gachibowli' : selectedLocation,
     day: 'Monday',
     breakfast: '',
     lunch: '',
@@ -15,7 +15,7 @@ const MenuTab = ({ data, token, selectedLocation, onUpdate }) => {
   });
 
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-  const locations = ['Location A', 'Location B', 'Location C'];
+  const locations = ['Gachibowli', 'Gowlidobbi', 'Pocharam', 'Madhapur'];
 
   const handleEdit = (menu) => {
     setFormData({
@@ -37,7 +37,7 @@ const MenuTab = ({ data, token, selectedLocation, onUpdate }) => {
       setEditingDay(null);
       setShowForm(false);
       setFormData({
-        location: selectedLocation === 'all' ? 'Location A' : selectedLocation,
+        location: selectedLocation === 'all' ? 'Gachibowli' : selectedLocation,
         day: 'Monday',
         breakfast: '',
         lunch: '',
@@ -120,7 +120,7 @@ const MenuTab = ({ data, token, selectedLocation, onUpdate }) => {
                 setShowForm(false);
                 setEditingDay(null);
                 setFormData({
-                  location: selectedLocation === 'all' ? 'Location A' : selectedLocation,
+                  location: selectedLocation === 'all' ? 'Gachibowli' : selectedLocation,
                   day: 'Monday',
                   breakfast: '',
                   lunch: '',
@@ -146,9 +146,10 @@ const MenuTab = ({ data, token, selectedLocation, onUpdate }) => {
                   required
                   className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 >
-                  <option value="Location A">Location A</option>
-                  <option value="Location B">Location B</option>
-                  <option value="Location C">Location C</option>
+                  <option value="Gachibowli">Gachibowli</option>
+                  <option value="Gowlidobbi">Gowlidobbi</option>
+                  <option value="Pocharam">Pocharam</option>
+                  <option value="Madhapur">Madhapur</option>
                 </select>
               </div>
               
@@ -205,7 +206,7 @@ const MenuTab = ({ data, token, selectedLocation, onUpdate }) => {
                   setShowForm(false);
                   setEditingDay(null);
                   setFormData({
-                    location: selectedLocation === 'all' ? 'Location A' : selectedLocation,
+                    location: selectedLocation === 'all' ? 'Gachibowli' : selectedLocation,
                     day: 'Monday',
                     breakfast: '',
                     lunch: '',

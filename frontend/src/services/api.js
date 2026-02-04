@@ -84,7 +84,7 @@ export const ownerAPI = {
   login: (credentials) =>
     api.post('/owner/login', credentials),
 
-  // Login with phone
+  // Login with phone - NEW
   loginWithPhone: (phone) =>
     api.post('/owner/login-phone', { phone }),
 

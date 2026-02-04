@@ -8,7 +8,7 @@ const AnnouncementsTab = ({ data, token, selectedLocation, onUpdate }) => {
   const [formData, setFormData] = useState({
     title: '',
     content: '',
-    location: selectedLocation === 'all' ? 'Location A' : selectedLocation
+    location: selectedLocation === 'all' ? 'Gachibowli' : selectedLocation
   });
 
   const handleSubmit = async (e) => {
@@ -140,9 +140,10 @@ const AnnouncementsTab = ({ data, token, selectedLocation, onUpdate }) => {
                 required
                 className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium"
               >
-                <option value="Location A">Location A</option>
-                <option value="Location B">Location B</option>
-                <option value="Location C">Location C</option>
+                <option value="Gachibowli">Gachibowli</option>
+                <option value="Gowlidobbi">Gowlidobbi</option>
+                <option value="Pocharam">Pocharam</option>
+                <option value="Madhapur">Madhapur</option>
               </select>
             </div>
             

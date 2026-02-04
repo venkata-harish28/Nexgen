@@ -7,7 +7,7 @@ const RoomsTab = ({ data, token, selectedLocation, onUpdate }) => {
   const [editingRoom, setEditingRoom] = useState(null);
   const [formData, setFormData] = useState({
     roomNumber: '',
-    location: selectedLocation === 'all' ? 'Location A' : selectedLocation,
+    location: selectedLocation === 'all' ? 'Gachibowli' : selectedLocation,
     capacity: 1,
     rentAmount: '',
     floor: 1,
@@ -17,7 +17,7 @@ const RoomsTab = ({ data, token, selectedLocation, onUpdate }) => {
   const resetForm = () => {
     setFormData({
       roomNumber: '',
-      location: selectedLocation === 'all' ? 'Location A' : selectedLocation,
+      location: selectedLocation === 'all' ? 'Gachibowli' : selectedLocation,
       capacity: 1,
       rentAmount: '',
       floor: 1,
@@ -179,9 +179,10 @@ const RoomsTab = ({ data, token, selectedLocation, onUpdate }) => {
                   required
                   className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg "
                 >
-                  <option value="Location A">Location A</option>
-                  <option value="Location B">Location B</option>
-                  <option value="Location C">Location C</option>
+                  <option value="Gachibowli">Gachibowli</option>
+                  <option value="Gowlidobbi">Gowlidobbi</option>
+                  <option value="Pocharam">Pocharam</option>
+                  <option value="Madhapur">Madhapur</option>
                 </select>
               </div>
             </div>

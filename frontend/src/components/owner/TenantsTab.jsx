@@ -9,7 +9,7 @@ const TenantsTab = ({ data, token, selectedLocation, onUpdate, rooms }) => {
     email: '',
     phone: '',
     roomNumber: '',
-    location: selectedLocation === 'all' ? 'Location A' : selectedLocation,
+    location: selectedLocation === 'all' ? 'Gachibowli' : selectedLocation,
     rentAmount: ''
   });
   const [newPasskey, setNewPasskey] = useState('');
@@ -90,7 +90,7 @@ const TenantsTab = ({ data, token, selectedLocation, onUpdate, rooms }) => {
       email: '',
       phone: '',
       roomNumber: '',
-      location: selectedLocation === 'all' ? 'Location A' : selectedLocation,
+      location: selectedLocation === 'all' ? 'Gachibowli' : selectedLocation,
       rentAmount: ''
     });
   };
@@ -246,9 +246,10 @@ const TenantsTab = ({ data, token, selectedLocation, onUpdate, rooms }) => {
                   required
                   className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
-                  <option value="Location A">Location A</option>
-                  <option value="Location B">Location B</option>
-                  <option value="Location C">Location C</option>
+                  <option value="Gachibowli">Gachibowli</option>
+                  <option value="Gowlidobbi">Gowlidobbi</option>
+                  <option value="Pocharam">Pocharam</option>
+                  <option value="Madhapur">Madhapur</option>
                 </select>
               </div>
 
