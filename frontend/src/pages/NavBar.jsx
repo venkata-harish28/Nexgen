@@ -77,23 +77,7 @@ const Navbar = () => {
             About
           </button>
 
-          <button
-            onClick={() => scrollToSection('rooms')}
-            style={navButtonStyle}
-            onMouseOver={(e) => (e.currentTarget.style.color = '#22c55e')}
-            onMouseOut={(e) => (e.currentTarget.style.color = '#ffffff')}
-          >
-            Rooms
-          </button>
-
-          <button
-            onClick={() => scrollToSection('locations')}
-            style={navButtonStyle}
-            onMouseOver={(e) => (e.currentTarget.style.color = '#22c55e')}
-            onMouseOut={(e) => (e.currentTarget.style.color = '#ffffff')}
-          >
-            Locations
-          </button>
+          
 
           <button
             onClick={() => navigate('/pages/contact')}

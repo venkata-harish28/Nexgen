@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Home, X, Users, IndianRupee, Layers, Building2, Phone, Mail, MapPin as MapPinIcon, AlertCircle } from 'lucide-react';
+import { Home, X, Users, IndianRupee, Layers, Building2, Phone, Mail, AlertCircle } from 'lucide-react';
 import { BedSingle } from 'lucide-react';
 import Navbar from './NavBar';
 
 // API base URL Configuration
-// Change this to your backend URL when deploying to production
 const API_BASE_URL = 'http://localhost:5000';
 
 // Mock data generator - Fallback if API is not available
-const getMockRooms = (location) => {
+const getMockRooms = () => {
   return [
     {
-      _id: `${location}-1`,
+      _id: 'bhimavaram-1',
       roomNumber: '101',
-      location: location,
+      location: 'Bhimavaram',
       capacity: 1,
       currentOccupancy: 0,
       floor: 1,
@@ -21,9 +20,9 @@ const getMockRooms = (location) => {
       amenities: ['WiFi', 'AC', 'Attached Bathroom', 'Study Table', 'Wardrobe']
     },
     {
-      _id: `${location}-2`,
+      _id: 'bhimavaram-2',
       roomNumber: '102',
-      location: location,
+      location: 'Bhimavaram',
       capacity: 2,
       currentOccupancy: 1,
       floor: 1,
@@ -31,9 +30,9 @@ const getMockRooms = (location) => {
       amenities: ['WiFi', 'AC', 'Study Table', 'Wardrobe']
     },
     {
-      _id: `${location}-3`,
+      _id: 'bhimavaram-3',
       roomNumber: '201',
-      location: location,
+      location: 'Bhimavaram',
       capacity: 3,
       currentOccupancy: 1,
       floor: 2,
@@ -41,9 +40,9 @@ const getMockRooms = (location) => {
       amenities: ['WiFi', 'Fan', 'Study Table', 'Wardrobe']
     },
     {
-      _id: `${location}-4`,
+      _id: 'bhimavaram-4',
       roomNumber: '202',
-      location: location,
+      location: 'Bhimavaram',
       capacity: 4,
       currentOccupancy: 2,
       floor: 2,
@@ -51,9 +50,9 @@ const getMockRooms = (location) => {
       amenities: ['WiFi', 'Fan', 'Common Bathroom']
     },
     {
-      _id: `${location}-5`,
+      _id: 'bhimavaram-5',
       roomNumber: '301',
-      location: location,
+      location: 'Bhimavaram',
       capacity: 5,
       currentOccupancy: 2,
       floor: 3,
@@ -67,37 +66,33 @@ const fetchVacantRooms = async (location) => {
   try {
     console.log(`Fetching rooms for location: ${location}`);
     
-    // Try to fetch from API first (public endpoint - no authentication needed)
     const response = await fetch(`${API_BASE_URL}/api/tenant/rooms/vacant?location=${encodeURIComponent(location)}`);
     
     console.log('API Response status:', response.status);
     
     if (!response.ok) {
-      // If API fails, return mock data
       console.log('API not available or returned error, using mock data');
-      return getMockRooms(location);
+      return getMockRooms();
     }
     
     const data = await response.json();
     console.log('Received data from API:', data);
     
-    // Ensure data is an array
     if (Array.isArray(data) && data.length > 0) {
       console.log(`Successfully fetched ${data.length} rooms from API`);
       return data;
     } else {
       console.log('API returned empty array, using mock data');
-      return getMockRooms(location);
+      return getMockRooms();
     }
   } catch (error) {
-    // If any error occurs, return mock data
     console.log('Error fetching rooms from API, using mock data:', error);
-    return getMockRooms(location);
+    return getMockRooms();
   }
 };
 
 const Booking = () => {
-  const [selectedLocation, setSelectedLocation] = useState('Gachibowli');
+  const [selectedLocation] = useState('Bhimavaram');
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -105,39 +100,16 @@ const Booking = () => {
   const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [usingMockData, setUsingMockData] = useState(false);
 
-  const locations = ['Gachibowli', 'Gowlidobbi', 'Pocharam', 'Madhapur'];
-
-  // Owner contact details - You can make this dynamic based on location
-  const ownerContacts = {
-    'Gachibowli': {
-      name: 'Rajesh Kumar',
-      phone: '+91 98765 43210',
-      email: 'rajesh@nextgenhostels.com',
-      address: 'Gachibowli, Hyderabad'
-    },
-    'Gowlidobbi': {
-      name: 'Priya Sharma',
-      phone: '+91 98765 43211',
-      email: 'priya@nextgenhostels.com',
-      address: 'Hitech City, Hyderabad'
-    },
-    'Pocharam': {
-      name: 'Amit Patel',
-      phone: '+91 98765 43212',
-      email: 'amit@nextgenhostels.com',
-      address: 'Pocharam, Hyderabad'
-    },
-    'Madhapur': {
-      name: 'Sneha Reddy',
-      phone: '+91 98765 43213',
-      email: 'sneha@nextgenhostels.com',
-      address: 'Madhapur, Hyderabad'
-    }
+  // Owner contact details
+  const ownerContact = {
+    name: 'Property Manager',
+    phone: '+91 98765 43210',
+    email: 'contact@nextgenhostels.com'
   };
 
   useEffect(() => {
     loadRooms();
-  }, [selectedLocation]);
+  }, []);
 
   const loadRooms = async () => {
     setLoading(true);
@@ -147,19 +119,16 @@ const Booking = () => {
     try {
       const data = await fetchVacantRooms(selectedLocation);
       
-      // Check if we're using mock data
-      if (data.length > 0 && data[0]._id.includes(selectedLocation)) {
+      if (data.length > 0 && data[0]._id.includes('bhimavaram')) {
         setUsingMockData(true);
       }
       
-      // Ensure data is always an array
       setRooms(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error loading rooms:', error);
       setError('Failed to load rooms from server. Showing sample data.');
       setUsingMockData(true);
-      // Still provide mock data as fallback
-      setRooms(getMockRooms(selectedLocation));
+      setRooms(getMockRooms());
     } finally {
       setLoading(false);
     }
@@ -174,10 +143,8 @@ const Booking = () => {
       4: '/4share.png',
       5: '/5share.png'
     };
-    return photoMap[capacity] || '/4share.png'; // Default fallback
+    return photoMap[capacity] || '/4share.png';
   };
-
-  const currentOwner = ownerContacts[selectedLocation];
 
   return (
     <div style={{ minHeight: '100vh', background: '#f8f9fa' }}>
@@ -191,218 +158,121 @@ const Booking = () => {
               <Building2 size={28} className="text-blue-600" strokeWidth={2} />
             </div>
             <div>
-              <h3 className="text-2xl font-bold text-gray-900">Available Rooms</h3>
+              <h3 className="text-2xl font-bold text-gray-900">Available Rooms - {selectedLocation}</h3>
               <p className="text-gray-600 mt-1">
-                Browse available rooms at your preferred location
+                Browse available rooms and bed arrangements
               </p>
             </div>
           </div>
 
-          {/* Connection Status */}
-          {usingMockData && (
-            <div style={{
-              background: '#fef3c7',
-              border: '2px solid #fbbf24',
-              borderRadius: '12px',
-              padding: '1rem',
-              marginBottom: '2rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.75rem'
-            }}>
-              <AlertCircle size={24} style={{ color: '#d97706', flexShrink: 0 }} />
-              <p style={{ color: '#92400e', fontSize: '0.95rem', margin: 0 }}>
-                <strong>Preview Mode:</strong> Showing sample rooms. Connect to backend server to see actual available rooms.
-              </p>
-            </div>
-          )}
-
-          {/* Location Selector */}
+          {/* Contact Details */}
           <div style={{
-            background: 'white',
+            background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
             padding: '2rem',
             borderRadius: '16px',
             marginBottom: '2rem',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+            color: 'white',
+            boxShadow: '0 4px 12px rgba(34, 197, 94, 0.3)'
           }}>
             <h4 style={{
-              fontSize: '1.2rem',
+              fontSize: '1.3rem',
               fontWeight: 700,
-              marginBottom: '1rem',
-              color: '#2d3748'
+              marginBottom: '1.5rem'
             }}>
-              Select Location
+              Contact Property Manager
             </h4>
             <div style={{
-              display: 'flex',
-              gap: '1rem',
-              flexWrap: 'wrap'
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+              gap: '1.5rem'
             }}>
-              {locations.map(location => (
-                <button
-                  key={location}
-                  onClick={() => setSelectedLocation(location)}
-                  style={{
-                    padding: '0.75rem 2rem',
-                    borderRadius: '50px',
-                    border: selectedLocation === location ? '2px solid #22c55e' : '2px solid #e5e7eb',
-                    background: selectedLocation === location ? '#22c55e' : 'white',
-                    color: selectedLocation === location ? 'white' : '#6b7280',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    transition: 'all 0.3s'
-                  }}
-                  onMouseOver={(e) => {
-                    if (selectedLocation !== location) {
-                      e.currentTarget.style.borderColor = '#22c55e';
-                      e.currentTarget.style.color = '#22c55e';
-                    }
-                  }}
-                  onMouseOut={(e) => {
-                    if (selectedLocation !== location) {
-                      e.currentTarget.style.borderColor = '#e5e7eb';
-                      e.currentTarget.style.color = '#6b7280';
-                    }
-                  }}
-                >
-                  {location}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Owner Contact Details */}
-          {currentOwner && (
-            <div style={{
-              background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
-              padding: '2rem',
-              borderRadius: '16px',
-              marginBottom: '2rem',
-              color: 'white',
-              boxShadow: '0 4px 12px rgba(34, 197, 94, 0.3)'
-            }}>
-              <h4 style={{
-                fontSize: '1.3rem',
-                fontWeight: 700,
-                marginBottom: '1.5rem'
-              }}>
-                Contact Property Manager - {selectedLocation}
-              </h4>
               <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-                gap: '1.5rem'
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem'
               }}>
                 <div style={{
+                  width: '40px',
+                  height: '40px',
+                  background: 'rgba(255,255,255,0.2)',
+                  borderRadius: '10px',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.75rem'
+                  justifyContent: 'center'
                 }}>
-                  <div style={{
-                    width: '40px',
-                    height: '40px',
-                    background: 'rgba(255,255,255,0.2)',
-                    borderRadius: '10px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}>
-                    <Users size={20} />
-                  </div>
-                  <div>
-                    <p style={{ fontSize: '0.85rem', opacity: 0.9 }}>Manager</p>
-                    <p style={{ fontSize: '1.1rem', fontWeight: 600 }}>{currentOwner.name}</p>
-                  </div>
+                  <Users size={20} />
                 </div>
-
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem'
-                }}>
-                  <div style={{
-                    width: '40px',
-                    height: '40px',
-                    background: 'rgba(255,255,255,0.2)',
-                    borderRadius: '10px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}>
-                    <Phone size={20} />
-                  </div>
-                  <div>
-                    <p style={{ fontSize: '0.85rem', opacity: 0.9 }}>Phone</p>
-                    <a 
-                      href={`tel:${currentOwner.phone}`}
-                      style={{ 
-                        fontSize: '1.1rem', 
-                        fontWeight: 600,
-                        color: 'white',
-                        textDecoration: 'none'
-                      }}
-                    >
-                      {currentOwner.phone}
-                    </a>
-                  </div>
+                <div>
+                  <p style={{ fontSize: '0.85rem', opacity: 0.9 }}>Manager</p>
+                  <p style={{ fontSize: '1.1rem', fontWeight: 600 }}>{ownerContact.name}</p>
                 </div>
+              </div>
 
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem'
+              }}>
                 <div style={{
+                  width: '40px',
+                  height: '40px',
+                  background: 'rgba(255,255,255,0.2)',
+                  borderRadius: '10px',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.75rem'
+                  justifyContent: 'center'
                 }}>
-                  <div style={{
-                    width: '40px',
-                    height: '40px',
-                    background: 'rgba(255,255,255,0.2)',
-                    borderRadius: '10px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}>
-                    <Mail size={20} />
-                  </div>
-                  <div>
-                    <p style={{ fontSize: '0.85rem', opacity: 0.9 }}>Email</p>
-                    <a 
-                      href={`mailto:${currentOwner.email}`}
-                      style={{ 
-                        fontSize: '1.1rem', 
-                        fontWeight: 600,
-                        color: 'white',
-                        textDecoration: 'none'
-                      }}
-                    >
-                      {currentOwner.email}
-                    </a>
-                  </div>
+                  <Phone size={20} />
                 </div>
+                <div>
+                  <p style={{ fontSize: '0.85rem', opacity: 0.9 }}>Phone</p>
+                  <a 
+                    href={`tel:${ownerContact.phone}`}
+                    style={{ 
+                      fontSize: '1.1rem', 
+                      fontWeight: 600,
+                      color: 'white',
+                      textDecoration: 'none'
+                    }}
+                  >
+                    {ownerContact.phone}
+                  </a>
+                </div>
+              </div>
 
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.75rem'
+              }}>
                 <div style={{
+                  width: '40px',
+                  height: '40px',
+                  background: 'rgba(255,255,255,0.2)',
+                  borderRadius: '10px',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.75rem'
+                  justifyContent: 'center'
                 }}>
-                  <div style={{
-                    width: '40px',
-                    height: '40px',
-                    background: 'rgba(255,255,255,0.2)',
-                    borderRadius: '10px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}>
-                    <MapPinIcon size={20} />
-                  </div>
-                  <div>
-                    <p style={{ fontSize: '0.85rem', opacity: 0.9 }}>Address</p>
-                    <p style={{ fontSize: '1.1rem', fontWeight: 600 }}>{currentOwner.address}</p>
-                  </div>
+                  <Mail size={20} />
+                </div>
+                <div>
+                  <p style={{ fontSize: '0.85rem', opacity: 0.9 }}>Email</p>
+                  <a 
+                    href={`mailto:${ownerContact.email}`}
+                    style={{ 
+                      fontSize: '1.1rem', 
+                      fontWeight: 600,
+                      color: 'white',
+                      textDecoration: 'none'
+                    }}
+                  >
+                    {ownerContact.email}
+                  </a>
                 </div>
               </div>
             </div>
-          )}
+          </div>
 
           {/* Error Message */}
           {error && !usingMockData && (
@@ -450,7 +320,7 @@ const Booking = () => {
                 No Vacant Rooms
               </h3>
               <p className="text-gray-600">
-                There are no vacant rooms available at {selectedLocation} currently. Please try another location or check back later.
+                There are no vacant rooms available at {selectedLocation} currently. Please check back later.
               </p>
             </div>
           ) : (
@@ -460,8 +330,6 @@ const Booking = () => {
               gap: '1.5rem'
             }}>
               {(rooms || []).map((room) => {
-                const availableBeds = room.capacity - room.currentOccupancy;
-                const occupancyPercentage = (room.currentOccupancy / room.capacity) * 100;
                 const roomPhoto = getRoomPhoto(room.capacity);
 
                 return (
@@ -498,108 +366,39 @@ const Booking = () => {
                           objectFit: 'cover'
                         }}
                       />
-                      <div style={{
-                        position: 'absolute',
-                        top: '1rem',
-                        right: '1rem',
-                        background: 'rgba(34, 197, 94, 0.95)',
-                        color: 'white',
-                        padding: '0.5rem 1rem',
-                        borderRadius: '20px',
-                        fontSize: '0.85rem',
-                        fontWeight: 700
-                      }}>
-                        {availableBeds} {availableBeds === 1 ? 'Bed' : 'Beds'} Available
-                      </div>
                     </div>
 
                     <div style={{ padding: '1.5rem' }}>
                       {/* Room Header */}
                       <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'start',
-                        marginBottom: '1rem'
+                        marginBottom: '1.5rem'
                       }}>
-                        <div>
-                          <h4 style={{
-                            fontSize: '1.3rem',
-                            fontWeight: 700,
-                            color: '#2d3748'
-                          }}>
-                            Room {room.roomNumber}
-                          </h4>
-                          <p style={{
-                            fontSize: '0.9rem',
-                            color: '#6b7280'
-                          }}>
-                            Floor {room.floor} • {room.capacity} Share
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Room Info */}
-                      <div style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '0.75rem',
-                        marginBottom: '1rem'
-                      }}>
-                        <div style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.5rem',
-                          fontSize: '0.9rem',
+                        <h4 style={{
+                          fontSize: '1.5rem',
+                          fontWeight: 700,
+                          color: '#2d3748',
+                          marginBottom: '0.5rem'
+                        }}>
+                          Room {room.roomNumber}
+                        </h4>
+                        <p style={{
+                          fontSize: '1rem',
                           color: '#6b7280'
                         }}>
-                          <Users size={16} />
-                          <span>Capacity: {room.capacity} persons</span>
-                        </div>
-
-                        <div style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.5rem',
-                          fontSize: '0.9rem',
-                          color: '#6b7280'
-                        }}>
-                          <Layers size={16} />
-                          <span>Occupancy: {room.currentOccupancy}/{room.capacity}</span>
-                        </div>
-                      </div>
-
-                      {/* Progress Bar */}
-                      <div style={{ marginBottom: '1rem' }}>
-                        <div style={{
-                          width: '100%',
-                          height: '8px',
-                          background: '#e5e7eb',
-                          borderRadius: '4px',
-                          overflow: 'hidden'
-                        }}>
-                          <div
-                            style={{
-                              width: `${occupancyPercentage}%`,
-                              height: '100%',
-                              background: occupancyPercentage < 50 ? '#22c55e' : occupancyPercentage < 75 ? '#f59e0b' : '#ef4444',
-                              transition: 'width 0.3s'
-                            }}
-                          />
-                        </div>
+                          Floor {room.floor} • {room.capacity} Share
+                        </p>
                       </div>
 
                       {/* Amenities */}
                       {room.amenities && room.amenities.length > 0 && (
                         <div style={{
-                          marginBottom: '1rem',
-                          paddingTop: '1rem',
-                          borderTop: '1px solid #e5e7eb'
+                          marginBottom: '1.5rem'
                         }}>
                           <p style={{
                             fontSize: '0.8rem',
                             fontWeight: 600,
                             color: '#6b7280',
-                            marginBottom: '0.5rem'
+                            marginBottom: '0.75rem'
                           }}>
                             Amenities:
                           </p>
@@ -632,8 +431,8 @@ const Booking = () => {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
-                        paddingTop: '1rem',
-                        borderTop: '1px solid #e5e7eb'
+                        paddingTop: '1.5rem',
+                        borderTop: '2px solid #e5e7eb'
                       }}>
                         <div>
                           <p style={{
@@ -681,7 +480,7 @@ const Booking = () => {
                             e.currentTarget.style.boxShadow = '0 2px 8px rgba(34, 197, 94, 0.3)';
                           }}
                         >
-                          View Layout
+                          Book Now
                         </button>
                       </div>
                     </div>
@@ -796,7 +595,7 @@ const RoomLayoutModal = ({ room, onClose, onViewPhoto, roomPhoto }) => {
               fontWeight: 700,
               marginBottom: '0.25rem'
             }}>
-              Room {room.roomNumber} - Layout
+              Room {room.roomNumber} - Bed Layout
             </h3>
             <p style={{
               fontSize: '0.95rem',

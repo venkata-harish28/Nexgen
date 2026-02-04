@@ -10,6 +10,34 @@ const api = axios.create({
   }
 });
 
+// Response interceptor to handle authentication errors
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response) {
+      const { status, data } = error.response;
+      
+      // Handle authentication errors
+      if (status === 401) {
+        const code = data?.code;
+        
+        // Clear storage and redirect based on error code
+        if (code === 'INVALID_TOKEN' || code === 'TOKEN_EXPIRED' || code === 'NO_TOKEN' || code === 'OWNER_NOT_FOUND') {
+          localStorage.removeItem('ownerToken');
+          localStorage.removeItem('ownerData');
+          window.location.href = '/owner-login';
+        } else if (code === 'INVALID_PASSKEY' || code === 'NO_PASSKEY') {
+          localStorage.removeItem('tenantPasskey');
+          localStorage.removeItem('tenantData');
+          window.location.href = '/tenant-login';
+        }
+      }
+    }
+    
+    return Promise.reject(error);
+  }
+);
+
 // ============= TENANT API =============
 export const tenantAPI = {
   // Login

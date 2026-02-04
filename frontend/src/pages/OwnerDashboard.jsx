@@ -105,7 +105,7 @@ const OwnerDashboard = () => {
   const handleLogout = () => {
     localStorage.removeItem('ownerToken');
     localStorage.removeItem('ownerData');
-    navigate('/owner-login');
+    navigate('/');
   };
 
   const tabs = [

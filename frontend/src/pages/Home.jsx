@@ -2648,7 +2648,7 @@ const Home = () => {
             margin: 0
           }}
         >
-          {['About Us', 'Contact Us', 'Privacy Policy', 'Terms & Conditions'].map(
+          {['About Us', 'Contact Us', ].map(
             (link, index) => (
               <li key={index} style={{ marginBottom: '0.6rem' }}>
                 <a
