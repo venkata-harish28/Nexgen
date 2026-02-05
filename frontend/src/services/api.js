@@ -40,13 +40,15 @@ api.interceptors.response.use(
 
 // ============= TENANT API =============
 export const tenantAPI = {
-  // Login
+  // Login - FIXED VERSION
   login: async (passkey) => {
     try {
+      console.log('[API] Tenant login attempt with passkey:', passkey);
       const response = await api.post('/tenant/login', { passkey });
-      return response.data;
+      console.log('[API] Login response:', response.data);
+      return response;
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('[API] Login error:', error.response?.data || error.message);
       throw error;
     }
   },
@@ -92,11 +94,12 @@ export const tenantAPI = {
     }
   },
 
-  // Get vacant rooms
+  // Get vacant rooms - FIXED: Use tenant's location from localStorage
   getVacantRooms: async (passkey) => {
     try {
       const tenantData = JSON.parse(localStorage.getItem('tenantData') || '{}');
       const location = tenantData.location || 'Gachibowli';
+      console.log('[API] Fetching vacant rooms for location:', location);
       const response = await api.get('/tenant/rooms/vacant', {
         params: { location }
       });

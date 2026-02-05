@@ -50,21 +50,46 @@ router.get('/rooms/vacant', async (req, res) => {
   }
 });
 
-// Tenant login with passkey
+// Tenant login with passkey - FIXED VERSION
 router.post('/login', async (req, res) => {
   try {
     const { passkey } = req.body;
     
     console.log(`[TENANT LOGIN] Attempt with passkey: ${passkey}`);
     
-    const tenant = await Tenant.findOne({ passkey, isActive: true });
+    // Validate passkey format
+    if (!passkey || typeof passkey !== 'string') {
+      console.log('[TENANT LOGIN] Failed - Invalid passkey format');
+      return res.status(400).json({ 
+        success: false,
+        message: 'Passkey is required' 
+      });
+    }
+
+    // Trim whitespace
+    const trimmedPasskey = passkey.trim();
+    
+    // Find tenant with passkey
+    const tenant = await Tenant.findOne({ passkey: trimmedPasskey });
     
     if (!tenant) {
-      console.log(`[TENANT LOGIN] Failed - Invalid passkey or inactive tenant`);
-      return res.status(401).json({ message: 'Invalid passkey' });
+      console.log(`[TENANT LOGIN] Failed - No tenant found with passkey: ${trimmedPasskey}`);
+      return res.status(401).json({ 
+        success: false,
+        message: 'Invalid passkey. Please check and try again.' 
+      });
+    }
+
+    // Check if tenant is active
+    if (!tenant.isActive) {
+      console.log(`[TENANT LOGIN] Failed - Tenant ${tenant.name} is inactive`);
+      return res.status(401).json({ 
+        success: false,
+        message: 'Your account is inactive. Please contact the administrator.' 
+      });
     }
     
-    console.log(`[TENANT LOGIN] Success - Tenant: ${tenant.name}, Location: ${tenant.location}`);
+    console.log(`[TENANT LOGIN] Success - Tenant: ${tenant.name}, Room: ${tenant.roomNumber}, Location: ${tenant.location}`);
     
     res.json({
       success: true,
@@ -75,12 +100,18 @@ router.post('/login', async (req, res) => {
         phone: tenant.phone,
         roomNumber: tenant.roomNumber,
         location: tenant.location,
-        rentAmount: tenant.rentAmount
+        rentAmount: tenant.rentAmount,
+        joinDate: tenant.joinDate,
+        lastPaymentDate: tenant.lastPaymentDate
       }
     });
   } catch (error) {
     console.error('[TENANT LOGIN] Error:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error. Please try again later.', 
+      error: error.message 
+    });
   }
 });
 

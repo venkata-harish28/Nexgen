@@ -23,10 +23,10 @@ const TenantLogin = () => {
           console.log('[OWNER LOGIN] Valid phone number, logging in as owner');
           const response = await ownerAPI.loginWithPhone(passkey);
           
-          if (response.data.success) {
-            console.log('[OWNER LOGIN] Success, token:', response.data.token);
-            localStorage.setItem('ownerToken', response.data.token);
-            localStorage.setItem('ownerData', JSON.stringify(response.data.owner));
+          if (response.success) {
+            console.log('[OWNER LOGIN] Success, token:', response.token);
+            localStorage.setItem('ownerToken', response.token);
+            localStorage.setItem('ownerData', JSON.stringify(response.owner));
             navigate('/owner-dashboard');
             return;
           }
@@ -34,18 +34,49 @@ const TenantLogin = () => {
       }
       
       // Otherwise try tenant login
-      console.log('[TENANT LOGIN] Attempting tenant login with passkey');
+      console.log('[TENANT LOGIN] Attempting tenant login with passkey:', passkey);
       const response = await tenantAPI.login(passkey);
       
-      if (response.data.success) {
-        console.log('[TENANT LOGIN] Success');
+      // Check if response exists and has data
+      if (!response || !response.data) {
+        throw new Error('Invalid response from server');
+      }
+
+      const { success, tenant } = response.data;
+      
+      if (success && tenant) {
+        console.log('[TENANT LOGIN] Success - Tenant:', tenant.name, 'Location:', tenant.location);
         localStorage.setItem('tenantPasskey', passkey);
-        localStorage.setItem('tenantData', JSON.stringify(response.data.tenant));
+        localStorage.setItem('tenantData', JSON.stringify(tenant));
         navigate('/tenant-dashboard');
+      } else {
+        setError('Login failed. Please check your passkey.');
       }
     } catch (err) {
       console.error('[LOGIN] Error:', err);
-      setError(err.response?.data?.message || 'Invalid passkey or phone number');
+      
+      // Handle different error types
+      if (err.response) {
+        // Server responded with error
+        const status = err.response.status;
+        const message = err.response.data?.message || 'An error occurred';
+        
+        if (status === 401) {
+          setError('Invalid passkey . Please check and try again.');
+        } else if (status === 400) {
+          setError(message);
+        } else if (status === 500) {
+          setError('Server error. Please try again later.');
+        } else {
+          setError(message);
+        }
+      } else if (err.request) {
+        // Request made but no response
+        setError('Cannot connect to server. Please check your connection and try again.');
+      } else {
+        // Other errors
+        setError(err.message || 'An error occurred. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -107,24 +138,33 @@ const TenantLogin = () => {
           {/* Passkey Form */}
           <form onSubmit={handleLogin}>
             <div className="mb-6">
-              
               <input
                 type="text"
                 value={passkey}
-                onChange={(e) => setPasskey(e.target.value)}
-                placeholder="Enter HST-XXXXXXXX "
+                onChange={(e) => setPasskey(e.target.value.trim())}
+                placeholder="Enter HST-XXXXXXXX"
                 required
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-teal-500 transition-colors"
+                disabled={loading}
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-teal-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               />
-              
+              <p className="mt-2 text-xs text-gray-500">
+                Your passkey was provided during registration
+              </p>
             </div>
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || !passkey}
               className="w-full py-3 bg-gradient-to-r from-teal-500 to-green-600 text-white rounded-lg font-semibold hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Signing in...' : 'Sign In'}
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  Signing in...
+                </span>
+              ) : (
+                'Sign In'
+              )}
             </button>
           </form>
 
@@ -138,8 +178,21 @@ const TenantLogin = () => {
             </button>
           </div>
 
+          {/* Info Box */}
+          <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800 font-medium mb-2">
+              📝 Test Credentials:
+            </p>
+            <p className="text-xs text-blue-700">
+              Use passkey: <code className="bg-blue-100 px-2 py-1 rounded">HST-TEST1234</code>
+            </p>
+            <p className="text-xs text-blue-600 mt-2">
+              (If you haven't created a test tenant yet, run: <code className="bg-blue-100 px-1 rounded">node seedTestTenant.js</code>)
+            </p>
+          </div>
+
           {/* Security Info */}
-          <div className="mt-8 p-4 bg-gray-50 rounded-lg text-center">
+          <div className="mt-4 p-4 bg-gray-50 rounded-lg text-center">
             <div className="flex items-center justify-center gap-2 mb-2">
               <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
