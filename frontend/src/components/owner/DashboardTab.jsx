@@ -1,35 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Home, AlertCircle, CreditCard, MapPin, TrendingUp, Clock, DollarSign, ArrowUpRight } from 'lucide-react';
-import api from '../../services/api';
+import { ownerAPI } from '../../services/api'; // ✅ Use ownerAPI instead of raw api
 
-const DashboardTab = ({ stats, currentLocation }) => {
+const DashboardTab = ({ stats, currentLocation, token }) => { // ✅ Added token prop
   const [locationStats, setLocationStats] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchLocationStats();
-  }, []);
+    if (token) { // ✅ Only fetch if token exists
+      fetchLocationStats();
+    }
+  }, [token]);
 
   const fetchLocationStats = async () => {
     try {
       setLoading(true);
-      // Fetch all locations (you might need to add this endpoint or fetch rooms to get unique locations)
-      const roomsResponse = await api.get('/api/owner/rooms');
-      const tenantsResponse = await api.get('/api/owner/tenants');
-      const paymentsResponse = await api.get('/api/owner/payments');
+      
+      // ✅ Use ownerAPI methods instead of raw api.get
+      const roomsResponse = await ownerAPI.getRooms(token);
+      const tenantsResponse = await ownerAPI.getTenants(token);
+      const paymentsResponse = await ownerAPI.getPayments(token);
+
+      // ✅ Data is already unwrapped, no need for .data
+      const rooms = roomsResponse;
+      const tenants = tenantsResponse;
+      const payments = paymentsResponse;
 
       // Get unique locations
-      const locations = [...new Set(roomsResponse.data.map(room => room.location))];
+      const locations = [...new Set(rooms.map(room => room.location))];
 
       // Calculate stats for each location
       const locationData = locations.map(location => {
-        const locationRooms = roomsResponse.data.filter(r => r.location === location);
-        const locationTenants = tenantsResponse.data.filter(t => t.location === location && t.isActive);
+        const locationRooms = rooms.filter(r => r.location === location);
+        const locationTenants = tenants.filter(t => t.location === location && t.isActive);
         
         // Calculate revenue for current month
         const currentMonth = new Date().toLocaleString('default', { month: 'long' });
         const currentYear = new Date().getFullYear();
-        const locationPayments = paymentsResponse.data.filter(
+        const locationPayments = payments.filter(
           p => p.location === location && 
                p.paymentMonth === currentMonth && 
                p.paymentYear === currentYear &&

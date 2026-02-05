@@ -64,13 +64,14 @@ const TenantDashboard = () => {
         tenantAPI.getMenu(passkey)
       ]);
 
+      // ✅ No .data access - responses are already unwrapped
       setData({
-        announcements: announcements.data,
-        complaints: complaints.data,
-        rooms: rooms.data,
-        payments: payments.data,
-        leaveRequests: leaveRequests.data,
-        menu: menu.data
+        announcements: announcements || [],
+        complaints: complaints || [],
+        rooms: rooms || [],
+        payments: payments || [],
+        leaveRequests: leaveRequests || [],
+        menu: menu || []
       });
     } catch (error) {
       console.error('Error loading data:', error);

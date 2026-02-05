@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Bell, Search, Calendar, ChevronDown, X, Eye } from 'lucide-react';
 
-const TenantAnnouncements = ({ data }) => {
+const TenantAnnouncements = ({ data = [] }) => { // ✅ Added default empty array
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('DESC');
   const [selectedDate, setSelectedDate] = useState('');
@@ -16,8 +16,11 @@ const TenantAnnouncements = ({ data }) => {
     }
   };
 
+  // ✅ Add safety check - ensure data is always an array
+  const safeData = Array.isArray(data) ? data : [];
+
   // Filter and sort data
-  const filteredData = data
+  const filteredData = safeData
     .filter(announcement => {
       const matchesSearch = announcement.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           announcement.content.toLowerCase().includes(searchTerm.toLowerCase());

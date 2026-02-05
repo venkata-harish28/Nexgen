@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Plus, Bell, Edit, Trash2, X, Calendar, MapPin } from 'lucide-react';
 import { ownerAPI } from '../../services/api';
 
-const AnnouncementsTab = ({ data, token, selectedLocation, onUpdate }) => {
+const AnnouncementsTab = ({ data = [], token, selectedLocation, onUpdate }) => { // ✅ Added default empty array
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
@@ -24,7 +24,7 @@ const AnnouncementsTab = ({ data, token, selectedLocation, onUpdate }) => {
       setFormData({ 
         title: '', 
         content: '', 
-        location: selectedLocation === 'all' ? 'Location A' : selectedLocation
+        location: selectedLocation === 'all' ? 'Gachibowli' : selectedLocation
       });
       onUpdate();
     } catch (error) {
@@ -70,8 +70,9 @@ const AnnouncementsTab = ({ data, token, selectedLocation, onUpdate }) => {
     });
   };
 
-  // Sort announcements by date (newest first)
-  const sortedData = [...data].sort((a, b) => {
+  // Sort announcements by date (newest first) - ✅ with safety check
+  const safeData = Array.isArray(data) ? data : [];
+  const sortedData = [...safeData].sort((a, b) => {
     return new Date(b.createdAt) - new Date(a.createdAt);
   });
 
@@ -96,7 +97,7 @@ const AnnouncementsTab = ({ data, token, selectedLocation, onUpdate }) => {
               setFormData({ 
                 title: '', 
                 content: '', 
-                location: selectedLocation === 'all' ? 'Location A' : selectedLocation
+                location: selectedLocation === 'all' ? 'Gachibowli' : selectedLocation
               });
             }}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold transition-all duration-200 shadow-md ${

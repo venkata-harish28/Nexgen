@@ -72,25 +72,25 @@ const OwnerDashboard = () => {
         ownerAPI.getRooms(token, location)
       ]);
 
-      setStats(statsRes.data);
+      setStats(statsRes); // ✅ No .data - already unwrapped
       
-      // Sort menu by location first, then by day
-      const sortedMenu = menu.data.sort((a, b) => {
+      // ✅ Sort menu - no .data needed, with safety check
+      const sortedMenu = Array.isArray(menu) ? [...menu].sort((a, b) => {
         const locationComparison = locations.indexOf(a.location) - locations.indexOf(b.location);
         if (locationComparison !== 0) {
           return locationComparison;
         }
         return days.indexOf(a.day) - days.indexOf(b.day);
-      });
+      }) : [];
       
       setData({
-        announcements: announcements.data,
-        complaints: complaints.data,
-        tenants: tenants.data,
-        payments: payments.data,
-        leaveRequests: leaveRequests.data,
+        announcements: announcements || [],
+        complaints: complaints || [],
+        tenants: tenants || [],
+        payments: payments || [],
+        leaveRequests: leaveRequests || [],
         menu: sortedMenu,
-        rooms: rooms.data
+        rooms: rooms || []
       });
     } catch (error) {
       console.error('Error loading data:', error);
@@ -208,7 +208,7 @@ const OwnerDashboard = () => {
 
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {activeTab === 'dashboard' && <DashboardTab stats={stats} />}
+        {activeTab === 'dashboard' && <DashboardTab stats={stats} currentLocation={selectedLocation} token={token} />}
         {activeTab === 'announcements' && (
           <AnnouncementsTab 
             data={data.announcements} 

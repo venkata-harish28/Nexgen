@@ -41,200 +41,431 @@ api.interceptors.response.use(
 // ============= TENANT API =============
 export const tenantAPI = {
   // Login
-  login: (passkey) => 
-    api.post('/tenant/login', { passkey }),
+  login: async (passkey) => {
+    try {
+      const response = await api.post('/tenant/login', { passkey });
+      return response.data;
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
+    }
+  },
 
   // Get announcements
-  getAnnouncements: (passkey) =>
-    api.get('/tenant/announcements', {
-      headers: { passkey }
-    }),
+  getAnnouncements: async (passkey) => {
+    try {
+      console.log('📞 API: Fetching announcements with passkey:', passkey);
+      const response = await api.get('/tenant/announcements', {
+        headers: { passkey }
+      });
+      console.log('✅ API: Announcements received:', response.data.length);
+      return response.data;
+    } catch (error) {
+      console.error('Get announcements error:', error);
+      throw error;
+    }
+  },
 
   // Get complaints
-  getComplaints: (passkey) =>
-    api.get('/tenant/complaints', {
-      headers: { passkey }
-    }),
+  getComplaints: async (passkey) => {
+    try {
+      const response = await api.get('/tenant/complaints', {
+        headers: { passkey }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Get complaints error:', error);
+      throw error;
+    }
+  },
 
   // Submit complaint
-  submitComplaint: (passkey, data) =>
-    api.post('/tenant/complaints', data, {
-      headers: { passkey }
-    }),
+  submitComplaint: async (passkey, data) => {
+    try {
+      const response = await api.post('/tenant/complaints', data, {
+        headers: { passkey }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Submit complaint error:', error);
+      throw error;
+    }
+  },
 
-  // Get vacant rooms - FIXED: Use tenant's location from localStorage
-  getVacantRooms: (passkey) => {
-    const tenantData = JSON.parse(localStorage.getItem('tenantData') || '{}');
-    const location = tenantData.location || 'Location A';
-    return api.get('/tenant/rooms/vacant', {
-      params: { location }
-    });
+  // Get vacant rooms
+  getVacantRooms: async (passkey) => {
+    try {
+      const tenantData = JSON.parse(localStorage.getItem('tenantData') || '{}');
+      const location = tenantData.location || 'Gachibowli';
+      const response = await api.get('/tenant/rooms/vacant', {
+        params: { location }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Get vacant rooms error:', error);
+      throw error;
+    }
   },
 
   // Get payments
-  getPayments: (passkey) =>
-    api.get('/tenant/payments', {
-      headers: { passkey }
-    }),
+  getPayments: async (passkey) => {
+    try {
+      const response = await api.get('/tenant/payments', {
+        headers: { passkey }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Get payments error:', error);
+      throw error;
+    }
+  },
 
   // Make payment
-  makePayment: (passkey, data) =>
-    api.post('/tenant/payments', data, {
-      headers: { passkey }
-    }),
+  makePayment: async (passkey, data) => {
+    try {
+      const response = await api.post('/tenant/payments', data, {
+        headers: { passkey }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Make payment error:', error);
+      throw error;
+    }
+  },
 
   // Get leave requests
-  getLeaveRequests: (passkey) =>
-    api.get('/tenant/leave-requests', {
-      headers: { passkey }
-    }),
+  getLeaveRequests: async (passkey) => {
+    try {
+      const response = await api.get('/tenant/leave-requests', {
+        headers: { passkey }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Get leave requests error:', error);
+      throw error;
+    }
+  },
 
   // Submit leave request
-  submitLeaveRequest: (passkey, data) =>
-    api.post('/tenant/leave-requests', data, {
-      headers: { passkey }
-    }),
+  submitLeaveRequest: async (passkey, data) => {
+    try {
+      const response = await api.post('/tenant/leave-requests', data, {
+        headers: { passkey }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Submit leave request error:', error);
+      throw error;
+    }
+  },
 
-  // Get menu - FIXED: Get menu for tenant's location
-  getMenu: (passkey) => {
-    const tenantData = JSON.parse(localStorage.getItem('tenantData') || '{}');
-    const location = tenantData.location;
-    return api.get('/tenant/menu', {
-      headers: { passkey },
-      params: location ? { location } : {}
-    });
+  // Get menu
+  getMenu: async (passkey) => {
+    try {
+      const tenantData = JSON.parse(localStorage.getItem('tenantData') || '{}');
+      const location = tenantData.location;
+      const response = await api.get('/tenant/menu', {
+        headers: { passkey },
+        params: location ? { location } : {}
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Get menu error:', error);
+      throw error;
+    }
   }
 };
 
 // ============= OWNER API =============
 export const ownerAPI = {
   // Login
-  login: (credentials) =>
-    api.post('/owner/login', credentials),
+  login: async (credentials) => {
+    try {
+      const response = await api.post('/owner/login', credentials);
+      return response.data;
+    } catch (error) {
+      console.error('Owner login error:', error);
+      throw error;
+    }
+  },
 
-  // Login with phone - NEW
-  loginWithPhone: (phone) =>
-    api.post('/owner/login-phone', { phone }),
+  // Login with phone
+  loginWithPhone: async (phone) => {
+    try {
+      const response = await api.post('/owner/login-phone', { phone });
+      return response.data;
+    } catch (error) {
+      console.error('Owner phone login error:', error);
+      throw error;
+    }
+  },
 
   // Register
-  register: (data) =>
-    api.post('/owner/register', data),
+  register: async (data) => {
+    try {
+      const response = await api.post('/owner/register', data);
+      return response.data;
+    } catch (error) {
+      console.error('Owner register error:', error);
+      throw error;
+    }
+  },
 
   // Dashboard stats
-  getDashboardStats: (token, location) =>
-    api.get('/owner/dashboard/stats', {
-      headers: { Authorization: `Bearer ${token}` },
-      params: location ? { location } : {}
-    }),
+  getDashboardStats: async (token, location) => {
+    try {
+      const response = await api.get('/owner/dashboard/stats', {
+        headers: { Authorization: `Bearer ${token}` },
+        params: location ? { location } : {}
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Get dashboard stats error:', error);
+      throw error;
+    }
+  },
 
   // Announcements
-  getAnnouncements: (token, location) =>
-    api.get('/owner/announcements', {
-      headers: { Authorization: `Bearer ${token}` },
-      params: location ? { location } : {}
-    }),
+  getAnnouncements: async (token, location) => {
+    try {
+      const response = await api.get('/owner/announcements', {
+        headers: { Authorization: `Bearer ${token}` },
+        params: location ? { location } : {}
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Get announcements error:', error);
+      throw error;
+    }
+  },
 
-  createAnnouncement: (token, data) =>
-    api.post('/owner/announcements', data, {
-      headers: { Authorization: `Bearer ${token}` }
-    }),
+  createAnnouncement: async (token, data) => {
+    try {
+      const response = await api.post('/owner/announcements', data, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Create announcement error:', error);
+      throw error;
+    }
+  },
 
-  updateAnnouncement: (token, id, data) =>
-    api.put(`/owner/announcements/${id}`, data, {
-      headers: { Authorization: `Bearer ${token}` }
-    }),
+  updateAnnouncement: async (token, id, data) => {
+    try {
+      const response = await api.put(`/owner/announcements/${id}`, data, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Update announcement error:', error);
+      throw error;
+    }
+  },
 
-  deleteAnnouncement: (token, id) =>
-    api.delete(`/owner/announcements/${id}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    }),
+  deleteAnnouncement: async (token, id) => {
+    try {
+      const response = await api.delete(`/owner/announcements/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Delete announcement error:', error);
+      throw error;
+    }
+  },
 
   // Complaints
-  getComplaints: (token, location, status) =>
-    api.get('/owner/complaints', {
-      headers: { Authorization: `Bearer ${token}` },
-      params: { location, status }
-    }),
+  getComplaints: async (token, location, status) => {
+    try {
+      const response = await api.get('/owner/complaints', {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { location, status }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Get complaints error:', error);
+      throw error;
+    }
+  },
 
-  updateComplaint: (token, id, data) =>
-    api.put(`/owner/complaints/${id}`, data, {
-      headers: { Authorization: `Bearer ${token}` }
-    }),
+  updateComplaint: async (token, id, data) => {
+    try {
+      const response = await api.put(`/owner/complaints/${id}`, data, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Update complaint error:', error);
+      throw error;
+    }
+  },
 
   // Tenants
-  getTenants: (token, location) =>
-    api.get('/owner/tenants', {
-      headers: { Authorization: `Bearer ${token}` },
-      params: location ? { location } : {}
-    }),
+  getTenants: async (token, location) => {
+    try {
+      const response = await api.get('/owner/tenants', {
+        headers: { Authorization: `Bearer ${token}` },
+        params: location ? { location } : {}
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Get tenants error:', error);
+      throw error;
+    }
+  },
 
-  createTenant: (token, data) =>
-    api.post('/owner/tenants', data, {
-      headers: { Authorization: `Bearer ${token}` }
-    }),
+  createTenant: async (token, data) => {
+    try {
+      const response = await api.post('/owner/tenants', data, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Create tenant error:', error);
+      throw error;
+    }
+  },
 
-  updateTenant: (token, id, data) =>
-    api.put(`/owner/tenants/${id}`, data, {
-      headers: { Authorization: `Bearer ${token}` }
-    }),
+  updateTenant: async (token, id, data) => {
+    try {
+      const response = await api.put(`/owner/tenants/${id}`, data, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Update tenant error:', error);
+      throw error;
+    }
+  },
 
-  deleteTenant: (token, id) =>
-    api.delete(`/owner/tenants/${id}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    }),
+  deleteTenant: async (token, id) => {
+    try {
+      const response = await api.delete(`/owner/tenants/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Delete tenant error:', error);
+      throw error;
+    }
+  },
 
   // Payments
-  getPayments: (token, location, month, year) =>
-    api.get('/owner/payments', {
-      headers: { Authorization: `Bearer ${token}` },
-      params: { location, month, year }
-    }),
+  getPayments: async (token, location, month, year) => {
+    try {
+      const response = await api.get('/owner/payments', {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { location, month, year }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Get payments error:', error);
+      throw error;
+    }
+  },
 
   // Leave Requests
-  getLeaveRequests: (token, location, status) =>
-    api.get('/owner/leave-requests', {
-      headers: { Authorization: `Bearer ${token}` },
-      params: { location, status }
-    }),
+  getLeaveRequests: async (token, location, status) => {
+    try {
+      const response = await api.get('/owner/leave-requests', {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { location, status }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Get leave requests error:', error);
+      throw error;
+    }
+  },
 
-  updateLeaveRequest: (token, id, data) =>
-    api.put(`/owner/leave-requests/${id}`, data, {
-      headers: { Authorization: `Bearer ${token}` }
-    }),
+  updateLeaveRequest: async (token, id, data) => {
+    try {
+      const response = await api.put(`/owner/leave-requests/${id}`, data, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Update leave request error:', error);
+      throw error;
+    }
+  },
 
   // Menu
-  getMenu: (token, location) =>
-    api.get('/owner/menu', {
-      headers: { Authorization: `Bearer ${token}` },
-      params: location ? { location } : {}
-    }),
+  getMenu: async (token, location) => {
+    try {
+      const response = await api.get('/owner/menu', {
+        headers: { Authorization: `Bearer ${token}` },
+        params: location ? { location } : {}
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Get menu error:', error);
+      throw error;
+    }
+  },
 
-  saveMenu: (token, data) =>
-    api.post('/owner/menu', data, {
-      headers: { Authorization: `Bearer ${token}` }
-    }),
+  saveMenu: async (token, data) => {
+    try {
+      const response = await api.post('/owner/menu', data, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Save menu error:', error);
+      throw error;
+    }
+  },
 
   // Rooms
-  getRooms: (token, location) =>
-    api.get('/owner/rooms', {
-      headers: { Authorization: `Bearer ${token}` },
-      params: location ? { location } : {}
-    }),
+  getRooms: async (token, location) => {
+    try {
+      const response = await api.get('/owner/rooms', {
+        headers: { Authorization: `Bearer ${token}` },
+        params: location ? { location } : {}
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Get rooms error:', error);
+      throw error;
+    }
+  },
 
-  createRoom: (token, data) =>
-    api.post('/owner/rooms', data, {
-      headers: { Authorization: `Bearer ${token}` }
-    }),
+  createRoom: async (token, data) => {
+    try {
+      const response = await api.post('/owner/rooms', data, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Create room error:', error);
+      throw error;
+    }
+  },
 
-  updateRoom: (token, id, data) =>
-    api.put(`/owner/rooms/${id}`, data, {
-      headers: { Authorization: `Bearer ${token}` }
-    }),
+  updateRoom: async (token, id, data) => {
+    try {
+      const response = await api.put(`/owner/rooms/${id}`, data, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Update room error:', error);
+      throw error;
+    }
+  },
 
-  deleteRoom: (token, id) =>
-    api.delete(`/owner/rooms/${id}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
+  deleteRoom: async (token, id) => {
+    try {
+      const response = await api.delete(`/owner/rooms/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Delete room error:', error);
+      throw error;
+    }
+  }
 };
 
 export default api;
