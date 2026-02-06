@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Plus, Bell, Edit, Trash2, X, Calendar, MapPin } from 'lucide-react';
 import { ownerAPI } from '../../services/api';
 
-const AnnouncementsTab = ({ data = [], token, selectedLocation, onUpdate }) => { // ✅ Added default empty array
+const AnnouncementsTab = ({ data = [], token, selectedLocation, onUpdate }) => {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
@@ -70,24 +70,23 @@ const AnnouncementsTab = ({ data = [], token, selectedLocation, onUpdate }) => {
     });
   };
 
-  // Sort announcements by date (newest first) - ✅ with safety check
   const safeData = Array.isArray(data) ? data : [];
   const sortedData = [...safeData].sort((a, b) => {
     return new Date(b.createdAt) - new Date(a.createdAt);
   });
 
   return (
-    <div className="space-y-6">
-      {/* Header Section */}
-      <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md">
-              <Bell size={24} className="text-white" />
+    <div className="space-y-4 sm:space-y-6">
+      {/* Header Section - Responsive */}
+      <div className="bg-white rounded-lg sm:rounded-xl shadow-sm p-4 sm:p-6 border border-gray-200">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+          <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg sm:rounded-xl flex items-center justify-center shadow-md flex-shrink-0">
+              <Bell size={20} className="sm:w-6 sm:h-6 text-white" />
             </div>
-            <div>
-              <h3 className="text-xl font-bold text-gray-900">Announcements</h3>
-              <p className="text-sm text-gray-600">Manage your hostel announcements</p>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 truncate">Announcements</h3>
+              <p className="text-xs sm:text-sm text-gray-600">Manage your hostel announcements</p>
             </div>
           </div>
           <button 
@@ -100,23 +99,23 @@ const AnnouncementsTab = ({ data = [], token, selectedLocation, onUpdate }) => {
                 location: selectedLocation === 'all' ? 'Gachibowli' : selectedLocation
               });
             }}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold transition-all duration-200 shadow-md ${
+            className={`w-full sm:w-auto flex items-center justify-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg font-semibold transition-all duration-200 shadow-md text-sm sm:text-base ${
               showForm 
                 ? 'bg-gray-200 text-gray-700 hover:bg-gray-300' 
                 : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800'
             }`}
           >
-            {showForm ? <X size={18} /> : <Plus size={18} />}
+            {showForm ? <X size={16} className="sm:w-[18px] sm:h-[18px]" /> : <Plus size={16} className="sm:w-[18px] sm:h-[18px]" />}
             <span>{showForm ? 'Cancel' : 'New Announcement'}</span>
           </button>
         </div>
       </div>
 
-      {/* Announcement Form */}
+      {/* Announcement Form - Responsive */}
       {showForm && (
-        <div className="bg-white rounded-xl shadow-sm p-8 border-2 border-blue-200">
-          <div className="flex justify-between items-center mb-6">
-            <h4 className="text-2xl font-bold text-gray-900">
+        <div className="bg-white rounded-lg sm:rounded-xl shadow-sm p-4 sm:p-6 lg:p-8 border-2 border-blue-200">
+          <div className="flex justify-between items-center mb-4 sm:mb-6">
+            <h4 className="text-xl sm:text-2xl font-bold text-gray-900">
               {editingId ? 'Edit Announcement' : 'Create New Announcement'}
             </h4>
             <button 
@@ -124,13 +123,13 @@ const AnnouncementsTab = ({ data = [], token, selectedLocation, onUpdate }) => {
                 setShowForm(false);
                 setEditingId(null);
               }}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+              className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"
             >
-              <X size={24} className="text-gray-500" />
+              <X size={20} className="sm:w-6 sm:h-6 text-gray-500" />
             </button>
           </div>
           
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Location <span className="text-red-500">*</span>
@@ -139,7 +138,7 @@ const AnnouncementsTab = ({ data = [], token, selectedLocation, onUpdate }) => {
                 value={formData.location}
                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                 required
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium text-sm sm:text-base"
               >
                 <option value="Gachibowli">Gachibowli</option>
                 <option value="Gowlidobbi">Gowlidobbi</option>
@@ -158,7 +157,7 @@ const AnnouncementsTab = ({ data = [], token, selectedLocation, onUpdate }) => {
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 placeholder="Enter announcement title"
                 required
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium text-sm sm:text-base"
               />
             </div>
             
@@ -172,14 +171,14 @@ const AnnouncementsTab = ({ data = [], token, selectedLocation, onUpdate }) => {
                 placeholder="Enter announcement content"
                 rows="6"
                 required
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium"
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-medium text-sm sm:text-base resize-none"
               />
             </div>
             
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <button 
                 type="submit" 
-                className="flex-1 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-200 font-semibold shadow-md"
+                className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-200 font-semibold shadow-md text-sm sm:text-base"
               >
                 {editingId ? 'Update' : 'Create'} Announcement
               </button>
@@ -189,7 +188,7 @@ const AnnouncementsTab = ({ data = [], token, selectedLocation, onUpdate }) => {
                   setShowForm(false);
                   setEditingId(null);
                 }}
-                className="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-200 font-semibold"
+                className="px-4 sm:px-6 py-2.5 sm:py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-200 font-semibold text-sm sm:text-base"
               >
                 Cancel
               </button>
@@ -198,72 +197,72 @@ const AnnouncementsTab = ({ data = [], token, selectedLocation, onUpdate }) => {
         </div>
       )}
 
-      {/* Announcements Grid */}
+      {/* Announcements Grid - Responsive */}
       {sortedData.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm p-16 text-center border border-gray-200">
-          <Bell size={48} className="mx-auto mb-4 opacity-30 text-gray-400" />
-          <h3 className="text-xl font-semibold mb-2 text-gray-900">No Announcements</h3>
-          <p className="text-gray-600">Create your first announcement to notify tenants</p>
+        <div className="bg-white rounded-lg sm:rounded-xl shadow-sm p-12 sm:p-16 text-center border border-gray-200">
+          <Bell size={40} className="sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 opacity-30 text-gray-400" />
+          <h3 className="text-lg sm:text-xl font-semibold mb-2 text-gray-900">No Announcements</h3>
+          <p className="text-sm sm:text-base text-gray-600">Create your first announcement to notify tenants</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
           {sortedData.map(announcement => {
             return (
               <div 
                 key={announcement._id}
-                className="relative bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-200 border border-gray-200"
+                className="relative bg-white rounded-lg sm:rounded-xl p-4 sm:p-6 shadow-sm hover:shadow-md transition-all duration-200 border border-gray-200"
               >
                 {/* Action Buttons - Top Right */}
-                <div className="absolute top-4 right-4 flex gap-2">
+                <div className="absolute top-3 sm:top-4 right-3 sm:right-4 flex gap-2">
                   <button 
                     onClick={() => handleEdit(announcement)}
-                    className="p-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors duration-200"
+                    className="p-1.5 sm:p-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors duration-200"
                     title="Edit"
                   >
-                    <Edit size={16} />
+                    <Edit size={14} className="sm:w-4 sm:h-4" />
                   </button>
                   <button 
                     onClick={() => handleDelete(announcement._id)}
-                    className="p-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors duration-200"
+                    className="p-1.5 sm:p-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors duration-200"
                     title="Delete"
                   >
-                    <Trash2 size={16} />
+                    <Trash2 size={14} className="sm:w-4 sm:h-4" />
                   </button>
                 </div>
 
                 {/* Bell Icon */}
-                <div className="mb-4">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <Bell size={20} className="text-blue-600" />
+                <div className="mb-3 sm:mb-4">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <Bell size={16} className="sm:w-5 sm:h-5 text-blue-600" />
                   </div>
                 </div>
 
                 {/* Title */}
-                <h4 className="text-lg font-bold text-gray-900 mb-3 pr-16">
+                <h4 className="text-base sm:text-lg font-bold text-gray-900 mb-2 sm:mb-3 pr-12 sm:pr-16 line-clamp-2">
                   {announcement.title}
                 </h4>
 
                 {/* Content Preview */}
-                <p className="text-sm text-gray-600 mb-4 line-clamp-3">
+                <p className="text-sm text-gray-600 mb-3 sm:mb-4 line-clamp-3">
                   {announcement.content}
                 </p>
 
                 {/* Meta Information */}
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm">
-                    <MapPin size={16} className="text-gray-400" />
+                  <div className="flex items-center gap-2 text-xs sm:text-sm">
+                    <MapPin size={14} className="sm:w-4 sm:h-4 text-gray-400 flex-shrink-0" />
                     <span className="text-gray-600">Location:</span>
-                    <span className="font-semibold text-gray-900">{announcement.location}</span>
+                    <span className="font-semibold text-gray-900 truncate">{announcement.location}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Calendar size={16} className="text-gray-400" />
+                  <div className="flex items-center gap-2 text-xs sm:text-sm">
+                    <Calendar size={14} className="sm:w-4 sm:h-4 text-gray-400 flex-shrink-0" />
                     <span className="text-gray-600">Posted:</span>
                     <span className="font-semibold text-gray-900">{formatDate(announcement.createdAt)}</span>
                   </div>
                 </div>
 
                 {/* Footer - Time */}
-                <div className="pt-4 mt-4 border-t border-gray-200">
+                <div className="pt-3 sm:pt-4 mt-3 sm:mt-4 border-t border-gray-200">
                   <p className="text-xs text-gray-500">
                     {formatTime(announcement.createdAt)}
                   </p>
@@ -276,8 +275,8 @@ const AnnouncementsTab = ({ data = [], token, selectedLocation, onUpdate }) => {
 
       {/* Results Count */}
       {sortedData.length > 0 && (
-        <div className="bg-white rounded-lg px-6 py-4 border border-gray-200 shadow-sm">
-          <p className="text-sm text-gray-600 text-center">
+        <div className="bg-white rounded-lg px-4 sm:px-6 py-3 sm:py-4 border border-gray-200 shadow-sm">
+          <p className="text-xs sm:text-sm text-gray-600 text-center">
             Total <span className="font-bold text-gray-900">{sortedData.length}</span> announcement{sortedData.length !== 1 ? 's' : ''}
           </p>
         </div>

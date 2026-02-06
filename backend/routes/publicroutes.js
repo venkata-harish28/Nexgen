@@ -8,6 +8,8 @@ router.get('/rooms/vacant', async (req, res) => {
   try {
     const { location } = req.query;
     
+    console.log(`[PUBLIC API] Fetching vacant rooms for location: ${location}`);
+    
     // Build filter
     const filter = {};
     if (location && location !== 'all') {
@@ -17,21 +19,30 @@ router.get('/rooms/vacant', async (req, res) => {
     // Find all rooms at the location
     const rooms = await Room.find(filter).sort({ roomNumber: 1 });
     
-    // Filter rooms that have available beds (currentOccupancy < capacity)
-    const availableRooms = rooms.filter(room => room.currentOccupancy < room.capacity);
+    console.log(`[PUBLIC API] Total rooms found: ${rooms.length}`);
     
-    // Also update isVacant status for consistency (optional)
+    // Update isVacant status for ALL rooms before filtering
     for (const room of rooms) {
       const shouldBeVacant = room.currentOccupancy < room.capacity;
       if (room.isVacant !== shouldBeVacant) {
+        console.log(`[PUBLIC API] Updating room ${room.roomNumber}: occupancy ${room.currentOccupancy}/${room.capacity}, setting isVacant to ${shouldBeVacant}`);
         room.isVacant = shouldBeVacant;
         await room.save();
       }
     }
     
+    // Filter rooms that have available beds (currentOccupancy < capacity)
+    const availableRooms = rooms.filter(room => {
+      const hasSpace = room.currentOccupancy < room.capacity;
+      console.log(`[PUBLIC API] Room ${room.roomNumber}: occupancy ${room.currentOccupancy}/${room.capacity}, available: ${hasSpace}`);
+      return hasSpace;
+    });
+    
+    console.log(`[PUBLIC API] Returning ${availableRooms.length} available rooms`);
+    
     res.json(availableRooms);
   } catch (error) {
-    console.error('Error fetching vacant rooms:', error);
+    console.error('[PUBLIC API] Error fetching vacant rooms:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
