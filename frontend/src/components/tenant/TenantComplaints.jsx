@@ -4,7 +4,7 @@ import { tenantAPI } from '../../services/api';
 
 const TenantComplaints = ({ data, passkey, onUpdate }) => {
   const [showForm, setShowForm] = useState(false);
-  const [activeTab, setActiveTab] = useState('active'); // 'active' or 'history'
+  const [activeTab, setActiveTab] = useState('active');
   const [formData, setFormData] = useState({
     subject: '',
     description: '',
@@ -56,7 +56,6 @@ const TenantComplaints = ({ data, passkey, onUpdate }) => {
     }
   };
 
-  // Sort complaints by priority (high -> medium -> low) and then by time (newest first)
   const sortComplaints = (complaints) => {
     return [...complaints].sort((a, b) => {
       const priorityOrder = { high: 0, medium: 1, low: 2 };
@@ -76,45 +75,49 @@ const TenantComplaints = ({ data, passkey, onUpdate }) => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="p-8">
+      <div className="p-3 sm:p-4 md:p-6 lg:p-8">
         {/* Header Section */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <Folder size={40} className="text-indigo-700" />
-            <h1 className="text-4xl font-bold text-indigo-900">My Complaints</h1>
+        <div className="mb-4 sm:mb-6 md:mb-8">
+          <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+            <div className="p-2 sm:p-3 bg-blue-50 rounded-xl border border-blue-100">
+              <Folder className="w-6 h-6 sm:w-7 sm:h-7 md:w-10 md:h-10 text-indigo-700" strokeWidth={2} />
+            </div>
+            <div>
+              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-indigo-900">My Complaints</h1>
+              <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-0.5 sm:mt-1 hidden sm:block">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua.
+              </p>
+            </div>
           </div>
-          <p className="text-gray-600">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua.
-          </p>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-4 sm:mb-6">
           <button
             onClick={() => setActiveTab('active')}
-            className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all duration-200 ${
+            className={`flex items-center justify-center sm:justify-start gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold transition-all duration-200 ${
               activeTab === 'active'
                 ? 'bg-indigo-600 text-white shadow-lg'
                 : 'bg-white text-gray-600 hover:bg-gray-50'
             }`}
           >
-            <MessageSquare size={20} />
-            Active Complaints ({activeComplaints.length})
+            <MessageSquare size={18} className="sm:w-5 sm:h-5" />
+            <span className="text-sm sm:text-base">Active ({activeComplaints.length})</span>
           </button>
           <button
             onClick={() => setActiveTab('history')}
-            className={`flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all duration-200 ${
+            className={`flex items-center justify-center sm:justify-start gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold transition-all duration-200 ${
               activeTab === 'history'
                 ? 'bg-indigo-600 text-white shadow-lg'
                 : 'bg-white text-gray-600 hover:bg-gray-50'
             }`}
           >
-            <History size={20} />
-            Resolved ({resolvedComplaints.length})
+            <History size={18} className="sm:w-5 sm:h-5" />
+            <span className="text-sm sm:text-base">Resolved ({resolvedComplaints.length})</span>
           </button>
           <button 
-            className="ml-auto px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 font-semibold shadow-lg"
+            className="px-4 sm:px-6 py-2.5 sm:py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200 font-semibold shadow-lg text-sm sm:text-base"
             onClick={() => setShowForm(!showForm)}
           >
             {showForm ? 'Cancel' : '+ New Complaint'}
@@ -123,29 +126,29 @@ const TenantComplaints = ({ data, passkey, onUpdate }) => {
 
         {/* Complaint Form */}
         {showForm && (
-          <div className="bg-white rounded-2xl shadow-lg p-8 mb-8 border-2 border-indigo-100">
-            <div className="flex justify-between items-center mb-6">
-              <h4 className="text-2xl font-bold text-indigo-900">Submit New Complaint</h4>
+          <div className="bg-white rounded-xl md:rounded-2xl shadow-lg p-4 sm:p-6 md:p-8 mb-4 sm:mb-6 md:mb-8 border-2 border-indigo-100">
+            <div className="flex justify-between items-center mb-4 sm:mb-6">
+              <h4 className="text-lg sm:text-xl md:text-2xl font-bold text-indigo-900">Submit New Complaint</h4>
               <button 
                 onClick={() => setShowForm(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+                className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"
               >
-                <X size={24} className="text-gray-500" />
+                <X className="w-5 h-5 sm:w-6 sm:h-6 text-gray-500" />
               </button>
             </div>
             
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 {/* Category */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
                     Category <span className="text-red-500">*</span>
                   </label>
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white"
                   >
                     <option value="maintenance">Maintenance</option>
                     <option value="cleanliness">Cleanliness</option>
@@ -158,14 +161,14 @@ const TenantComplaints = ({ data, passkey, onUpdate }) => {
 
                 {/* Priority */}
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
                     Priority Level <span className="text-red-500">*</span>
                   </label>
                   <select
                     value={formData.priority}
                     onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
                     required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white"
+                    className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-white"
                   >
                     <option value="low">Low</option>
                     <option value="medium">Medium</option>
@@ -176,7 +179,7 @@ const TenantComplaints = ({ data, passkey, onUpdate }) => {
               
               {/* Subject */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
                   Subject <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -185,13 +188,13 @@ const TenantComplaints = ({ data, passkey, onUpdate }) => {
                   onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                   placeholder="Brief description of the issue"
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 />
               </div>
               
               {/* Description */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
                   Description <span className="text-red-500">*</span>
                 </label>
                 <textarea
@@ -200,14 +203,14 @@ const TenantComplaints = ({ data, passkey, onUpdate }) => {
                   placeholder="Provide detailed information about your complaint..."
                   rows="5"
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 />
               </div>
               
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <button 
                   type="submit" 
-                  className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 disabled:opacity-50 font-semibold"
+                  className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 disabled:opacity-50 font-semibold"
                   disabled={submitting}
                 >
                   {submitting ? 'Submitting...' : 'Submit Complaint'}
@@ -215,7 +218,7 @@ const TenantComplaints = ({ data, passkey, onUpdate }) => {
                 <button 
                   type="button"
                   onClick={() => setShowForm(false)}
-                  className="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors duration-200 font-semibold"
+                  className="px-4 sm:px-6 py-2.5 sm:py-3 text-sm sm:text-base bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors duration-200 font-semibold"
                 >
                   Cancel
                 </button>
@@ -228,13 +231,12 @@ const TenantComplaints = ({ data, passkey, onUpdate }) => {
         {activeTab === 'active' && (
           <>
             {activeComplaints.length === 0 ? (
-              <div className="bg-white rounded-2xl shadow-sm p-16 text-center">
-                <FileText size={56} className="mx-auto mb-4 opacity-30 text-gray-400" />
-                <h3 className="text-2xl font-semibold mb-2 text-gray-900">No Active Complaints</h3>
-                
+              <div className="bg-white rounded-xl md:rounded-2xl shadow-sm p-8 sm:p-12 md:p-16 text-center">
+                <FileText className="w-12 h-12 sm:w-14 sm:h-14 mx-auto mb-3 sm:mb-4 opacity-30 text-gray-400" />
+                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 text-gray-900">No Active Complaints</h3>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
                 {activeComplaints.map(complaint => (
                   <ComplaintCard 
                     key={complaint._id} 
@@ -253,13 +255,13 @@ const TenantComplaints = ({ data, passkey, onUpdate }) => {
         {activeTab === 'history' && (
           <>
             {resolvedComplaints.length === 0 ? (
-              <div className="bg-white rounded-2xl shadow-sm p-16 text-center">
-                <History size={56} className="mx-auto mb-4 opacity-30 text-gray-400" />
-                <h3 className="text-2xl font-semibold mb-2 text-gray-900">No Resolved Complaints</h3>
-                <p className="text-gray-600">No complaints have been resolved yet</p>
+              <div className="bg-white rounded-xl md:rounded-2xl shadow-sm p-8 sm:p-12 md:p-16 text-center">
+                <History className="w-12 h-12 sm:w-14 sm:h-14 mx-auto mb-3 sm:mb-4 opacity-30 text-gray-400" />
+                <h3 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 text-gray-900">No Resolved Complaints</h3>
+                <p className="text-sm sm:text-base text-gray-600">No complaints have been resolved yet</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
                 {resolvedComplaints.map(complaint => (
                   <ComplaintCard 
                     key={complaint._id} 
@@ -282,42 +284,42 @@ const TenantComplaints = ({ data, passkey, onUpdate }) => {
 const ComplaintCard = ({ complaint, getPriorityColor, getCardBackground, getTextColor, isResolved = false }) => {
   return (
     <div 
-      className={`${getCardBackground(complaint.priority)} rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-200 border border-gray-200 ${
+      className={`${getCardBackground(complaint.priority)} rounded-xl p-4 sm:p-6 shadow-sm hover:shadow-md transition-all duration-200 border border-gray-200 ${
         isResolved ? 'opacity-75' : ''
       }`}
     >
       {/* Priority Badge */}
-      <div className="mb-4">
-        <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${getPriorityColor(complaint.priority)}`}>
+      <div className="mb-3 sm:mb-4">
+        <span className={`px-2.5 sm:px-3 py-1 rounded-full text-xs font-bold uppercase ${getPriorityColor(complaint.priority)}`}>
           {complaint.priority || 'Medium'}
         </span>
         {isResolved && (
-          <span className="ml-2 px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+          <span className="ml-2 px-2.5 sm:px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
             ✓ {complaint.status}
           </span>
         )}
       </div>
 
       {/* Complaint Title */}
-      <h3 className={`text-lg font-bold mb-2 ${getTextColor(complaint.priority)}`}>
+      <h3 className={`text-base sm:text-lg font-bold mb-2 ${getTextColor(complaint.priority)}`}>
         {complaint.subject}
       </h3>
       
       {/* Description */}
-      <p className={`text-sm mb-4 line-clamp-2 ${getTextColor(complaint.priority)}`}>
+      <p className={`text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-2 ${getTextColor(complaint.priority)}`}>
         {complaint.description}
       </p>
       
       {/* Admin Response */}
       {complaint.adminResponse && (
-        <div className="bg-white/80 p-4 rounded-lg mb-4 border border-gray-200">
+        <div className="bg-white/80 p-3 sm:p-4 rounded-lg mb-3 sm:mb-4 border border-gray-200">
           <p className="text-xs font-semibold text-gray-700 mb-1">Admin Response:</p>
-          <p className="text-sm text-gray-600">{complaint.adminResponse}</p>
+          <p className="text-xs sm:text-sm text-gray-600">{complaint.adminResponse}</p>
         </div>
       )}
       
       {/* Footer */}
-      <div className="mt-4 pt-4 border-t border-gray-200 flex justify-between items-center text-xs text-gray-500">
+      <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-200 flex justify-between items-center text-xs text-gray-500">
         <span className="capitalize">{complaint.category}</span>
         <span>{new Date(complaint.createdAt).toLocaleDateString()}</span>
       </div>

@@ -178,15 +178,7 @@ const TenantLogin = () => {
             </button>
           </div>
 
-          {/* Test Credentials Info */}
-          <div className="mt-6 sm:mt-8 p-3 sm:p-4 bg-blue-50 border-2 border-blue-200 rounded-xl">
-            <p className="text-xs sm:text-sm text-blue-800 font-semibold mb-2">
-              📝 Test Credentials:
-            </p>
-            <p className="text-xs sm:text-sm text-blue-700">
-              Passkey: <code className="bg-blue-100 px-2 py-1 rounded font-mono text-xs">HST-TEST1234</code>
-            </p>
-          </div>
+          
 
           {/* Security Badge */}
           <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-gray-50 rounded-xl text-center">
