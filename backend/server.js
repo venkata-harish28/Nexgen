@@ -17,6 +17,7 @@ const allowedOrigins = [
   'http://localhost:3000',        // React dev
   'http://localhost:5173',        // Vite dev
   'https://yourdomain.com',       // Production frontend
+  "https://nexgen-ten-rust.vercel.app"
 ];
 const corsOptions = {
   origin: function (origin, callback) {
