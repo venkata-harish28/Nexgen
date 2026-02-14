@@ -14,14 +14,12 @@ const app = express();
 
 // CORS configuration
 const allowedOrigins = [
+  'https://nexgen-ten-rust.vercel.app',
   'http://localhost:3000',        // React dev
   'http://localhost:5173',        // Vite dev
-  'https://yourdomain.com',       // Production frontend
-  "https://nexgen-ten-rust.vercel.app"
 ];
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl, Postman)
     if (!origin) return callback(null, true);
 
     if (allowedOrigins.includes(origin)) {
@@ -30,16 +28,15 @@ const corsOptions = {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  credentials: true, // if using cookies or JWT in cookies
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
   optionsSuccessStatus: 200,
 };
 
+
 app.use(cors(corsOptions));
-
-// Handle preflight requests
 app.options('*', cors(corsOptions));
-
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
