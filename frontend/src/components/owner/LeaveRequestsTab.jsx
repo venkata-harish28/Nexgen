@@ -1,9 +1,39 @@
-import React, { useState } from 'react';
-import { DoorOpen, X, Check, Clock, CheckCircle2, XCircle, IndianRupee, Calendar, User, MapPin } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { DoorOpen, X, Check, Clock, CheckCircle2, XCircle, IndianRupee, Calendar, User, MapPin, Trash2 } from 'lucide-react';
 import { ownerAPI } from '../../services/api';
 
 const LeaveRequestsTab = ({ data, token, onUpdate }) => {
   const [selectedRequest, setSelectedRequest] = useState(null);
+
+  // Auto-delete requests older than 32 days on component mount
+  useEffect(() => {
+    const deleteOldRequests = async () => {
+      const thirtyTwoDaysAgo = new Date();
+      thirtyTwoDaysAgo.setDate(thirtyTwoDaysAgo.getDate() - 32);
+
+      const oldRequests = data.filter(request => {
+        const requestDate = new Date(request.createdAt || request.requestDate);
+        return requestDate < thirtyTwoDaysAgo;
+      });
+
+      if (oldRequests.length > 0) {
+        try {
+          // Delete old requests
+          for (const request of oldRequests) {
+            await ownerAPI.deleteLeaveRequest(token, request._id);
+          }
+          // Refresh the data after deletion
+          onUpdate();
+        } catch (error) {
+          console.error('Error deleting old requests:', error);
+        }
+      }
+    };
+
+    if (data && data.length > 0) {
+      deleteOldRequests();
+    }
+  }, [data, token, onUpdate]);
 
   const handleUpdate = async (id, status, adminNotes, refundAmount) => {
     try {
@@ -12,6 +42,17 @@ const LeaveRequestsTab = ({ data, token, onUpdate }) => {
       onUpdate();
     } catch (error) {
       console.error('Error updating leave request:', error);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this request?')) {
+      try {
+        await ownerAPI.deleteLeaveRequest(token, id);
+        onUpdate();
+      } catch (error) {
+        console.error('Error deleting request:', error);
+      }
     }
   };
 
@@ -48,6 +89,12 @@ const LeaveRequestsTab = ({ data, token, onUpdate }) => {
     }
   };
 
+  const getDaysOld = (request) => {
+    const requestDate = new Date(request.createdAt || request.requestDate);
+    const now = new Date();
+    return Math.floor((now - requestDate) / (1000 * 60 * 60 * 24));
+  };
+
   // Sort by status (pending first) then by date
   const sortedRequests = [...data].sort((a, b) => {
     const statusOrder = { pending: 0, approved: 1, rejected: 2 };
@@ -79,7 +126,7 @@ const LeaveRequestsTab = ({ data, token, onUpdate }) => {
           </div>
           <div>
             <h3 className="text-xl font-bold text-gray-900">Leave Requests</h3>
-            <p className="text-sm text-gray-600">Manage tenant departure requests</p>
+            <p className="text-sm text-gray-600">Manage tenant departure requests • Auto-deleted after 32 days</p>
           </div>
         </div>
       </div>
@@ -114,6 +161,8 @@ const LeaveRequestsTab = ({ data, token, onUpdate }) => {
                     const config = getStatusConfig(request.status);
                     const Icon = config.icon;
                     const daysUntilLeave = Math.ceil((new Date(request.leaveDate) - new Date()) / (1000 * 60 * 60 * 24));
+                    const daysOld = getDaysOld(request);
+                    const daysUntilDeletion = 32 - daysOld;
                     
                     return (
                       <div 
@@ -131,9 +180,18 @@ const LeaveRequestsTab = ({ data, token, onUpdate }) => {
                               <p className="text-xs text-gray-600">Room {request.roomNumber}</p>
                             </div>
                           </div>
-                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${config.badge}`}>
-                            {config.text}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${config.badge}`}>
+                              {config.text}
+                            </span>
+                            <button
+                              onClick={() => handleDelete(request._id)}
+                              className="p-1.5 hover:bg-red-100 rounded-lg transition-all group"
+                              title="Delete request"
+                            >
+                              <Trash2 size={14} className="text-gray-400 group-hover:text-red-600" />
+                            </button>
+                          </div>
                         </div>
 
                         {/* Details */}
@@ -153,6 +211,13 @@ const LeaveRequestsTab = ({ data, token, onUpdate }) => {
                             <p className="text-xs text-gray-500">
                               {daysUntilLeave === 0 ? 'Leaving today' : `${daysUntilLeave} days until departure`}
                             </p>
+                          )}
+                          {daysUntilDeletion <= 7 && daysUntilDeletion > 0 && (
+                            <div className="bg-orange-50 border border-orange-200 rounded-lg px-2 py-1">
+                              <p className="text-xs text-orange-700 font-semibold">
+                                ⚠️ Auto-deletes in {daysUntilDeletion} day{daysUntilDeletion !== 1 ? 's' : ''}
+                              </p>
+                            </div>
                           )}
                           {request.status?.toLowerCase() === 'approved' && request.refundAmount > 0 && (
                             <div className="flex items-center gap-2 text-sm bg-white px-3 py-2 rounded-lg border border-gray-200">

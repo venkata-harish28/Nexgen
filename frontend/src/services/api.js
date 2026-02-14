@@ -1,7 +1,6 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-
+const API_URL = import.meta.env.VITE_API_URL;
 // Create axios instance
 const api = axios.create({
   baseURL: API_URL,
@@ -390,6 +389,18 @@ export const ownerAPI = {
       return response.data;
     } catch (error) {
       console.error('Update leave request error:', error);
+      throw error;
+    }
+  },
+
+  deleteLeaveRequest: async (token, id) => {
+    try {
+      const response = await api.delete(`/owner/leave-requests/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Delete leave request error:', error);
       throw error;
     }
   },
